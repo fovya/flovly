@@ -127,6 +127,39 @@
         <input type="file" id="addGalleryPhoto" accept="image/*" class="hidden" onchange="addGalleryImage(event)">
     </section>
 
+    <!-- SECTION KOMENTAR / UCAPAN -->
+    <section class="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 border border-rose-100 my-4">
+        <h2 class="font-script text-4xl text-rose-500 mb-1 text-center">Sweet Notes</h2>
+        <p class="text-xs text-gray-400 mb-4 text-center">Tulis catatan manis atau komentar untuk Fatur & Lyvia</p>
+
+        <form id="commentForm" onsubmit="addComment(event)" class="space-y-3 mb-5">
+            <input
+                type="text"
+                id="commentName"
+                maxlength="40"
+                placeholder="Nama kamu..."
+                required
+                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-rose-200 bg-white focus:outline-none focus:border-rose-400"
+            >
+            <textarea
+                id="commentText"
+                rows="3"
+                maxlength="240"
+                placeholder="Tulis pesan atau ucapan..."
+                required
+                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-rose-200 bg-white focus:outline-none focus:border-rose-400 resize-none"
+            ></textarea>
+            <button
+                type="submit"
+                class="w-full bg-gradient-to-r from-rose-400 to-pink-500 text-white py-2.5 rounded-xl font-medium text-xs shadow-md shadow-rose-100 hover:opacity-95 transition"
+            >
+                💬 Kirim Ucapan
+            </button>
+        </form>
+
+        <div id="commentList" class="space-y-2.5"></div>
+    </section>
+
     <!-- Footer -->
     <footer class="w-full max-w-md text-center py-4 text-xs text-rose-400">
         Made with ❤️ for Lyvia
@@ -151,6 +184,8 @@
     </div>
 
     <script>
+    var COMMENT_STORAGE_KEY = "flovly_sweet_notes_v1";
+
     function toggleModal() {
         var modal = document.getElementById("loveModal");
         if (!modal) return;
@@ -205,6 +240,98 @@
         reader.readAsDataURL(file);
     }
 
+    function getSavedComments() {
+        try {
+            var raw = localStorage.getItem(COMMENT_STORAGE_KEY);
+            var parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function saveComments(list) {
+        try {
+            localStorage.setItem(COMMENT_STORAGE_KEY, JSON.stringify(list));
+        } catch (err) {
+            // Abaikan jika penyimpanan browser penuh atau diblokir
+        }
+    }
+
+    function renderComments() {
+        var listEl = document.getElementById("commentList");
+        if (!listEl) return;
+        var comments = getSavedComments();
+        listEl.innerHTML = "";
+
+        if (comments.length === 0) {
+            var emptyEl = document.createElement("p");
+            emptyEl.className = "text-[11px] text-gray-400 text-center py-2";
+            emptyEl.textContent = "Belum ada ucapan. Yuk tulis pesan pertama!";
+            listEl.appendChild(emptyEl);
+            return;
+        }
+
+        comments.forEach(function (item) {
+            var card = document.createElement("div");
+            card.className = "bg-rose-50/90 border border-rose-100 rounded-2xl p-3 text-left";
+
+            var header = document.createElement("div");
+            header.className = "flex items-center justify-between gap-2 mb-1";
+
+            var nameSpan = document.createElement("span");
+            nameSpan.className = "text-xs font-semibold text-rose-600";
+            nameSpan.textContent = item.name;
+
+            var timeSpan = document.createElement("span");
+            timeSpan.className = "text-[10px] text-gray-400";
+            timeSpan.textContent = item.time;
+
+            var bodyP = document.createElement("p");
+            bodyP.className = "text-xs text-gray-600 leading-relaxed break-words";
+            bodyP.textContent = item.message;
+
+            header.appendChild(nameSpan);
+            header.appendChild(timeSpan);
+            card.appendChild(header);
+            card.appendChild(bodyP);
+            listEl.appendChild(card);
+        });
+    }
+
+    function addComment(event) {
+        event.preventDefault();
+        var nameInput = document.getElementById("commentName");
+        var textInput = document.getElementById("commentText");
+        if (!nameInput || !textInput) return;
+
+        var nameVal = nameInput.value.trim();
+        var textVal = textInput.value.trim();
+        if (!nameVal || !textVal) return;
+
+        var now = new Date();
+        var formattedTime = now.toLocaleDateString("id-ID", { day: "2-digit", month: "short" }) +
+            " • " +
+            now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+        var current = getSavedComments();
+        current.unshift({
+            name: nameVal,
+            message: textVal,
+            time: formattedTime
+        });
+
+        if (current.length > 30) {
+            current = current.slice(0, 30);
+        }
+
+        saveComments(current);
+        renderComments();
+
+        textInput.value = "";
+        textInput.focus();
+    }
+
     (function () {
       var target = new Date(2026, 5, 26, 0, 0, 0).getTime();
 
@@ -226,14 +353,16 @@
         if (elS) elS.textContent = s < 10 ? "0" + s : "" + s;
       }
 
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", function () {
-          tick();
-          setInterval(tick, 1000);
-        });
-      } else {
+      function initPage() {
+        renderComments();
         tick();
         setInterval(tick, 1000);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initPage);
+      } else {
+        initPage();
       }
     })();
     </script>
