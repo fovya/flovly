@@ -95,6 +95,10 @@
       margin-top: 4px;
     }
 
+    .hero-block {
+      margin-bottom: 16px;
+    }
+
     .hero-photo {
       position: relative;
       border-radius: 18px;
@@ -102,7 +106,6 @@
       aspect-ratio: 4 / 3;
       background: var(--accent-soft);
       border: 1px solid var(--border-soft);
-      margin-bottom: 12px;
     }
 
     .hero-photo img {
@@ -112,11 +115,25 @@
       display: block;
     }
 
+    .hero-caption {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .photo-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .photo-item {
@@ -133,6 +150,14 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .photo-caption {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      word-break: break-word;
     }
 
     .upload-btn {
@@ -320,16 +345,36 @@
     </section>
 
     <section class="card">
-      <div class="hero-photo">
-        <img src="utama.jpg" alt="Foto Utama Fatur &amp; Lyvia" />
+      <div class="hero-block">
+        <div class="hero-photo">
+          <img src="utama.jpg" alt="Foto Utama Fatur &amp; Lyvia" />
+        </div>
+        <div class="hero-caption">Foto Utama Kami ✨</div>
       </div>
+
       <div class="gallery-grid" id="galleryGrid">
-        <div class="photo-item"><img src="foto1.jpg" alt="Kenangan 1" /></div>
-        <div class="photo-item"><img src="foto2.jpg" alt="Kenangan 2" /></div>
-        <div class="photo-item"><img src="foto3.jpg" alt="Kenangan 3" /></div>
-        <div class="photo-item"><img src="foto4.jpg" alt="Kenangan 4" /></div>
-        <div class="photo-item"><img src="foto5.jpg" alt="Kenangan 5" /></div>
+        <div class="photo-card">
+          <div class="photo-item"><img src="foto1.jpg" alt="Kenangan 1" /></div>
+          <div class="photo-caption">Kenangan 1</div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-item"><img src="foto2.jpg" alt="Kenangan 2" /></div>
+          <div class="photo-caption">Kenangan 2</div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-item"><img src="foto3.jpg" alt="Kenangan 3" /></div>
+          <div class="photo-caption">Kenangan 3</div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-item"><img src="foto4.jpg" alt="Kenangan 4" /></div>
+          <div class="photo-caption">Kenangan 4</div>
+        </div>
+        <div class="photo-card">
+          <div class="photo-item"><img src="foto5.jpg" alt="Kenangan 5" /></div>
+          <div class="photo-caption">Kenangan 5</div>
+        </div>
       </div>
+
       <input type="file" id="photoInput" accept="image/*" multiple hidden />
       <button type="button" class="upload-btn" id="addPhotoBtn">📷 Tambah Foto Kenangan Lainnya</button>
     </section>
@@ -403,13 +448,24 @@
       files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
+          const card = document.createElement("div");
+          card.className = "photo-card";
+
           const item = document.createElement("div");
           item.className = "photo-item";
+
           const img = document.createElement("img");
           img.src = e.target.result;
           img.alt = file.name;
           item.appendChild(img);
-          galleryGrid.appendChild(item);
+
+          const caption = document.createElement("div");
+          caption.className = "photo-caption";
+          caption.textContent = file.name.replace(/\.[^/.]+$/, "");
+
+          card.appendChild(item);
+          card.appendChild(caption);
+          galleryGrid.appendChild(card);
         };
         reader.readAsDataURL(file);
       });
