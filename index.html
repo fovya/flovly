@@ -279,7 +279,6 @@
 </head>
 <body>
   <main class="container">
-    <!-- Kartu Counter -->
     <section class="card">
       <h1 class="brand-title">Fatur &amp; Lyvia</h1>
       <p class="subtitle">Bersama sejak 26 Juni 2026</p>
@@ -303,7 +302,6 @@
       </div>
     </section>
 
-    <!-- Kartu Galeri Kenangan -->
     <section class="card">
       <div class="gallery-grid" id="galleryGrid">
         <div class="photo-item"><img src="foto1.jpg" alt="Kenangan 1" /></div>
@@ -315,7 +313,6 @@
       <button type="button" class="upload-btn" id="addPhotoBtn">📷 Tambah Foto Kenangan Lainnya</button>
     </section>
 
-    <!-- Kartu Sweet Notes Global -->
     <section class="card">
       <h2 class="section-title">Sweet Notes</h2>
       <p class="subtitle">Tulis catatan manis atau komentar untuk Fatur &amp; Lyvia</p>
@@ -354,7 +351,6 @@
   <script>
     const DB_URL = "https://flofy-notes-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    // Penghitung waktu sejak 26 Juni 2026 00:00:00 WIB (+07:00)
     const startDate = new Date("2026-06-26T00:00:00+07:00").getTime();
 
     function updateCounter() {
@@ -375,7 +371,6 @@
     updateCounter();
     setInterval(updateCounter, 1000);
 
-    // Tambah foto lokal sementara di perangkat yang sedang membuka
     const photoInput = document.getElementById("photoInput");
     const addPhotoBtn = document.getElementById("addPhotoBtn");
     const galleryGrid = document.getElementById("galleryGrid");
@@ -400,7 +395,6 @@
       photoInput.value = "";
     });
 
-    // Format tanggal & jam ringkas (contoh: 26 Nov • 17.42)
     function formatShortDate(timestamp) {
       const d = new Date(timestamp);
       const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -411,7 +405,6 @@
       return `${day} ${month} • ${hh}.${mm}`;
     }
 
-    // Muat & tampilkan komentar global dari Firebase
     const notesList = document.getElementById("notesList");
     const noteForm = document.getElementById("noteForm");
     const authorInput = document.getElementById("authorInput");
@@ -425,14 +418,20 @@
         const data = await res.json();
 
         notesList.innerHTML = "";
-        if (!data) {
+        if (!data || typeof data !== "object") {
           notesList.innerHTML = `<div class="empty-notes">Belum ada ucapan. Yuk jadi yang pertama mengirim!</div>`;
           return;
         }
 
         const items = Object.entries(data)
           .map(([id, val]) => ({ id, ...val }))
+          .filter((item) => item && (item.author || item.message))
           .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        if (items.length === 0) {
+          notesList.innerHTML = `<div class="empty-notes">Belum ada ucapan. Yuk jadi yang pertama mengirim!</div>`;
+          return;
+        }
 
         items.forEach((note) => {
           const card = document.createElement("div");
@@ -484,7 +483,10 @@
           })
         });
 
-        if (!res.ok) throw new Error("Gagal menyimpan");
+        const result = await res.json();
+        if (!res.ok || !result || !result.name) {
+          throw new Error("Gagal menyimpan ke database");
+        }
 
         messageInput.value = "";
         statusText.textContent = "Ucapan terkirim dan bisa dilihat di semua HP!";
@@ -496,7 +498,6 @@
       }
     });
 
-    // Penghitung total kunjungan global di Firebase
     const visitorEl = document.getElementById("visitorCount");
 
     async function updateVisitorCount() {
