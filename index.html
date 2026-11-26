@@ -1133,8 +1133,8 @@
       <p class="subtitle">Tap 2 kotak buat tukar posisi sampai gambarnya utuh ♡</p>
 
       <div class="puzzle-photo-picker" id="puzzlePhotoPicker">
-        <button type="button" class="puzzle-photo-btn is-active" data-src="puzzle1.jpg">🌊 Air Terjun</button>
-        <button type="button" class="puzzle-photo-btn" data-src="puzzle2.jpg">🪞 Mirror Selfie</button>
+        <button type="button" class="puzzle-photo-btn is-active" data-src="puzzle1.jpg">🪞 Mirror Selfie</button>
+        <button type="button" class="puzzle-photo-btn" data-src="puzzle2.jpg">📸 Photobox</button>
         <button type="button" class="puzzle-photo-btn" data-src="puzzle3.jpg">🌉 Jembatan</button>
       </div>
 
@@ -1446,7 +1446,7 @@
 
     loadLoveCount();
 
-    // --- Mini Puzzle (3x3 Santai + 3 Foto Baru + Love & Confetti) ---
+    // --- Mini Puzzle (3x3 Santai + 3 Foto + Love & Confetti) ---
     const puzzleBoard = document.getElementById("puzzleBoard");
     const puzzlePhotoButtons = Array.from(document.querySelectorAll(".puzzle-photo-btn"));
     const puzzleProgressText = document.getElementById("puzzleProgressText");
@@ -1457,7 +1457,7 @@
     const PUZZLE_SIZE = 3;
     const TOTAL_TILES = PUZZLE_SIZE * PUZZLE_SIZE;
     let currentPuzzleSrc = "puzzle1.jpg";
-    let puzzlePieces = []; // berisi index potongan asli (0..8) di tiap slot (0..8)
+    let puzzlePieces = [];
     let selectedTileSlot = null;
     let puzzleSolvedCelebrated = false;
 
