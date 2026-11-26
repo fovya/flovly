@@ -140,31 +140,36 @@
             <p class="text-sm text-gray-
                 
 <script>
+(function () {
+  var target = new Date(2026, 5, 26, 0, 0, 0).getTime();
+
+  function tick() {
+    var diff = Math.max(0, Date.now() - target);
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+
+    var elD = document.getElementById("days");
+    var elH = document.getElementById("hours");
+    var elM = document.getElementById("minutes");
+    var elS = document.getElementById("seconds");
+
+      if (elD) elD.textContent = d;
+  if (elH) elH.textContent = h < 10 ? "0" + h : "" + h;
+  if (elM) elM.textContent = m < 10 ? "0" + m : "" + m;
+  if (elS) elS.textContent = s < 10 ? "0" + s : "" + s;
+}
+
+if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", function () {
-    const startDate = new Date("2026-06-26T00:00:00").getTime();
-
-    function updateLoveCounter() {
-      const now = Date.now();
-      const diff = Math.max(0, now - startDate);
-
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const minutes = Math.floor((diff % 3600000) / 60000);
-      const seconds = Math.floor((diff % 60000) / 1000);
-
-      const daysEl = document.getElementById("days");
-      const hoursEl = document.getElementById("hours");
-      const minsEl = document.getElementById("minutes") || document.getElementById("mins");
-      const secsEl = document.getElementById("seconds") || document.getElementById("secs");
-
-      if (daysEl) daysEl.textContent = days;
-      if (hoursEl) hoursEl.textContent = String(hours).padStart(2, "0");
-      if (minsEl) minsEl.textContent = String(minutes).padStart(2, "0");
-      if (secsEl) secsEl.textContent = String(seconds).padStart(2, "0");
-    }
-
-    updateLoveCounter();
-    setInterval(updateLoveCounter, 1000);
+    tick();
+    setInterval(tick, 1000);
   });
+} else {
+  tick();
+  setInterval(tick, 1000);
+}
+})();
 </script>
 </body>
