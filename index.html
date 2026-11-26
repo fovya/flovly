@@ -352,6 +352,58 @@
       margin-bottom: 4px;
     }
 
+    .love-calc-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .love-result-box {
+      margin-top: 14px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+      display: none;
+      animation: popIn 0.25s ease-out;
+    }
+
+    .love-result-box.is-visible {
+      display: block;
+    }
+
+    .love-percent {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      line-height: 1.15;
+    }
+
+    .love-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #ffe0ec;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .love-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff7aa8 0%, var(--accent) 100%);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    .love-verdict {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
     .note-form {
       display: flex;
       flex-direction: column;
@@ -614,6 +666,39 @@
     </section>
 
     <section class="card">
+      <h2 class="section-title">Love Calculator</h2>
+      <p class="subtitle">Cek kecocokan dua nama versi Flovly ♡</p>
+
+      <form class="love-calc-form" id="loveCalcForm">
+        <input
+          type="text"
+          id="nameOneInput"
+          class="input-field"
+          placeholder="Nama pertama (mis. Fatur / Lyvia)..."
+          maxlength="40"
+          required
+        />
+        <input
+          type="text"
+          id="nameTwoInput"
+          class="input-field"
+          placeholder="Nama kedua..."
+          maxlength="40"
+          required
+        />
+        <button type="submit" class="submit-btn">💘 Hitung Kecocokan</button>
+      </form>
+
+      <div class="love-result-box" id="loveResultBox">
+        <div class="love-percent" id="lovePercentText">0%</div>
+        <div class="love-bar-track">
+          <div class="love-bar-fill" id="loveBarFill"></div>
+        </div>
+        <div class="love-verdict" id="loveVerdictText"></div>
+      </div>
+    </section>
+
+    <section class="card">
       <h2 class="section-title">Sweet Notes</h2>
       <p class="subtitle">Tulis catatan manis atau komentar untuk Fatur &amp; Lyvia</p>
 
@@ -773,6 +858,111 @@
     lyviaPersonBtn.addEventListener("click", () => handlePersonClick("lyvia", lyviaPersonBtn));
 
     loadLoveCount();
+
+    // --- Love Calculator + Hack Nama Kalian (90-100%) & Blacklist Mantan ---
+    const blacklistedExNames = [
+      "imel",
+      "ika",
+      "ikarc",
+      "sabrina",
+      "alimz",
+      "windu",
+      "alfi"
+    ];
+
+    const mainCoupleNames = [
+      "fatur",
+      "ftur",
+      "fafila",
+      "fatur laksono",
+      "lutfia",
+      "lutfhia",
+      "lyvia",
+      "lyv",
+      "pia",
+      "flofy"
+    ];
+
+    const loveCalcForm = document.getElementById("loveCalcForm");
+    const nameOneInput = document.getElementById("nameOneInput");
+    const nameTwoInput = document.getElementById("nameTwoInput");
+    const loveResultBox = document.getElementById("loveResultBox");
+    const lovePercentText = document.getElementById("lovePercentText");
+    const loveBarFill = document.getElementById("loveBarFill");
+    const loveVerdictText = document.getElementById("loveVerdictText");
+
+    function normalizeName(str) {
+      return str.trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function hashPair(a, b) {
+      const pair = [a, b].sort().join("|");
+      let sum = 0;
+      for (let i = 0; i < pair.length; i++) {
+        sum += pair.charCodeAt(i) * (i + 3);
+      }
+      return sum;
+    }
+
+    function calculateHackedCoupleScore(a, b) {
+      return 90 + (hashPair(a, b) % 11); // 90% - 100%
+    }
+
+    function calculateDeterministicScore(a, b) {
+      return 35 + (hashPair(a, b) % 61); // 35% - 95% untuk nama umum
+    }
+
+    loveCalcForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const rawA = nameOneInput.value.trim();
+      const rawB = nameTwoInput.value.trim();
+      if (!rawA || !rawB) return;
+
+      const normA = normalizeName(rawA);
+      const normB = normalizeName(rawB);
+
+      const isMainA = mainCoupleNames.includes(normA);
+      const isMainB = mainCoupleNames.includes(normB);
+      const hasMainPartner = isMainA || isMainB;
+
+      const hasBlacklistedName =
+        blacklistedExNames.includes(normA) || blacklistedExNames.includes(normB);
+
+      const isBlacklistedWithMain = hasMainPartner && hasBlacklistedName;
+      const isBothMainNames = isMainA && isMainB;
+
+      let score = 0;
+      let verdict = "";
+
+      if (isBlacklistedWithMain) {
+        score = 0;
+        verdict = "maaf tidak jodoh";
+      } else if (isBothMainNames) {
+        score = calculateHackedCoupleScore(normA, normB);
+        verdict = "Takdir banget! Fatur & Lyvia menyatu ♡";
+      } else {
+        score = calculateDeterministicScore(normA, normB);
+        if (score >= 80) {
+          verdict = "Cocok banget, manis pol! 💖";
+        } else if (score >= 55) {
+          verdict = "Lumayan nyambung, tinggal sering ngobrol ✨";
+        } else {
+          verdict = "Masih perlu banyak cerita bareng nih 🌸";
+        }
+      }
+
+      loveResultBox.classList.remove("is-visible");
+      void loveResultBox.offsetWidth;
+      loveResultBox.classList.add("is-visible");
+
+      lovePercentText.textContent = `${score}%`;
+      loveBarFill.style.width = `${score}%`;
+      loveVerdictText.textContent = verdict;
+
+      if (!isBlacklistedWithMain) {
+        spawnFloatingHearts();
+      }
+    });
 
     const photoInput = document.getElementById("photoInput");
     const addPhotoBtn = document.getElementById("addPhotoBtn");
