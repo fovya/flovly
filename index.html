@@ -63,7 +63,39 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 0.92rem;
+      margin-bottom: 14px;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-bottom: 18px;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      color: var(--accent-dark);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .social-btn:hover {
+      background: #ffe8f0;
+    }
+
+    .social-btn:active {
+      transform: scale(0.98);
     }
 
     .timer-grid {
@@ -324,6 +356,24 @@
     <section class="card">
       <h1 class="brand-title">Fatur &amp; Lyvia</h1>
       <p class="subtitle">Bersama sejak 26 Juni 2026</p>
+      <div class="social-links">
+        <a
+          href="https://www.instagram.com/faturketemu.lyvia?dmpr=MWJsbGozbnFuMWV1dw%3D%3D&amp;utm_source=qr"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="social-btn"
+        >
+          📸 Instagram
+        </a>
+        <a
+          href="https://www.tiktok.com/@faturketemu.lyvia?_r=1&amp;_t=ZS-9Bj800SvAWX"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="social-btn"
+        >
+          🎵 TikTok
+        </a>
+      </div>
       <div class="timer-grid">
         <div class="time-box">
           <div class="time-num" id="days">0</div>
