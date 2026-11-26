@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flovly — Fatur & Lyvia</title>
+  <title>Flovly — Fatur &amp; Lyvia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -93,6 +93,23 @@
       letter-spacing: 0.05em;
       color: var(--text-muted);
       margin-top: 4px;
+    }
+
+    .hero-photo {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 12px;
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .gallery-grid {
@@ -303,11 +320,15 @@
     </section>
 
     <section class="card">
+      <div class="hero-photo">
+        <img src="utama.jpg" alt="Foto Utama Fatur &amp; Lyvia" />
+      </div>
       <div class="gallery-grid" id="galleryGrid">
         <div class="photo-item"><img src="foto1.jpg" alt="Kenangan 1" /></div>
         <div class="photo-item"><img src="foto2.jpg" alt="Kenangan 2" /></div>
         <div class="photo-item"><img src="foto3.jpg" alt="Kenangan 3" /></div>
         <div class="photo-item"><img src="foto4.jpg" alt="Kenangan 4" /></div>
+        <div class="photo-item"><img src="foto5.jpg" alt="Kenangan 5" /></div>
       </div>
       <input type="file" id="photoInput" accept="image/*" multiple hidden />
       <button type="button" class="upload-btn" id="addPhotoBtn">📷 Tambah Foto Kenangan Lainnya</button>
