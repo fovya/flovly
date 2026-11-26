@@ -34,6 +34,7 @@
       color: var(--text-main);
       min-height: 100vh;
       padding: 24px 16px 40px;
+      overflow-x: hidden;
     }
 
     .container {
@@ -126,6 +127,112 @@
       letter-spacing: 0.05em;
       color: var(--text-muted);
       margin-top: 4px;
+    }
+
+    .love-box {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .little-person-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border: 1.5px solid var(--border-soft);
+      border-radius: 999px;
+      background: linear-gradient(135deg, #fff7fa 0%, #ffe6f0 100%);
+      color: var(--accent-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(242, 75, 136, 0.16);
+      transition: transform 0.15s ease, background-color 0.2s ease;
+    }
+
+    .little-person-btn:hover {
+      background: #ffe0ec;
+    }
+
+    .little-person-btn:active {
+      transform: scale(0.93);
+    }
+
+    .little-avatar {
+      font-size: 1.25rem;
+      line-height: 1;
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+
+    .little-person-btn.is-bouncing .little-avatar {
+      animation: littleHop 0.45s ease;
+    }
+
+    @keyframes littleHop {
+      0% { transform: translateY(0) scale(1); }
+      35% { transform: translateY(-7px) scale(1.18) rotate(-8deg); }
+      70% { transform: translateY(1px) scale(0.96) rotate(6deg); }
+      100% { transform: translateY(0) scale(1) rotate(0deg); }
+    }
+
+    .love-count {
+      background: var(--accent);
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+    }
+
+    .love-msg-bubble {
+      width: 100%;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+      text-align: center;
+      animation: popIn 0.25s ease-out;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: translateY(6px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .floating-heart {
+      position: fixed;
+      bottom: 24px;
+      pointer-events: none;
+      font-size: 1.35rem;
+      z-index: 999;
+      animation: floatUp 1.25s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.85);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-130px) scale(1.25);
+      }
     }
 
     .hero-block {
@@ -393,6 +500,15 @@
           <div class="time-label">SECS</div>
         </div>
       </div>
+
+      <div class="love-box">
+        <button type="button" class="little-person-btn" id="loveBtn" aria-label="Colek orang kecil">
+          <span class="little-avatar" id="littleAvatar">🧸</span>
+          <span>Colek si kecil</span>
+          <span class="love-count" id="loveCount">0</span>
+        </button>
+        <div class="love-msg-bubble" id="loveMsgBubble">Colek orang kecilnya buat keluar ucapan manja + hati melayang ✨</div>
+      </div>
     </section>
 
     <section class="card">
@@ -487,6 +603,89 @@
 
     updateCounter();
     setInterval(updateCounter, 1000);
+
+    const loveBtn = document.getElementById("loveBtn");
+    const littleAvatar = document.getElementById("littleAvatar");
+    const loveCountEl = document.getElementById("loveCount");
+    const loveMsgBubble = document.getElementById("loveMsgBubble");
+
+    const cuteLoveMessages = [
+      "Peluk hangat buat Lyvia 🩷",
+      "Fatur kangen nih, jangan lupa senyum ya ✨",
+      "Satu colek = satu sayang tambahan buat kamu 💖",
+      "Gemes banget hari ini 🧸💕",
+      "Selalu sayang Fatur & Lyvia 🫶",
+      "Jangan lupa makan & minum air putih ya 🌸",
+      "Hari-hari bareng kamu tuh favorit banget 🌷",
+      "Kirim cipika-cipiki virtual dulu nih 😘💕"
+    ];
+    const littleCharacters = ["🧸", "🫶", "🌷", "🐣"];
+    const heartEmojis = ["❤️", "🩷", "💖", "💕", "✨"];
+    let currentLoveCount = 0;
+    let lastMsgIndex = -1;
+
+    function spawnFloatingHearts() {
+      for (let i = 0; i < 6; i++) {
+        const heart = document.createElement("div");
+        heart.className = "floating-heart";
+        heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = `${18 + Math.random() * 64}vw`;
+        heart.style.animationDelay = `${i * 0.07}s`;
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1400);
+      }
+    }
+
+    function hopLittlePerson() {
+      littleAvatar.textContent = littleCharacters[Math.floor(Math.random() * littleCharacters.length)];
+      loveBtn.classList.remove("is-bouncing");
+      void loveBtn.offsetWidth;
+      loveBtn.classList.add("is-bouncing");
+    }
+
+    function pickNextCuteMessage() {
+      let idx = Math.floor(Math.random() * cuteLoveMessages.length);
+      if (cuteLoveMessages.length > 1 && idx === lastMsgIndex) {
+        idx = (idx + 1) % cuteLoveMessages.length;
+      }
+      lastMsgIndex = idx;
+
+      loveMsgBubble.style.animation = "none";
+      void loveMsgBubble.offsetWidth;
+      loveMsgBubble.style.animation = "popIn 0.25s ease-out";
+      loveMsgBubble.textContent = cuteLoveMessages[idx];
+    }
+
+    async function loadLoveCount() {
+      try {
+        const res = await fetch(`${DB_URL}/loves.json`);
+        const val = Number(await res.json()) || 0;
+        currentLoveCount = val;
+        loveCountEl.textContent = currentLoveCount.toLocaleString("id-ID");
+      } catch (err) {
+        loveCountEl.textContent = currentLoveCount.toLocaleString("id-ID");
+      }
+    }
+
+    loveBtn.addEventListener("click", async () => {
+      currentLoveCount += 1;
+      loveCountEl.textContent = currentLoveCount.toLocaleString("id-ID");
+      hopLittlePerson();
+      pickNextCuteMessage();
+      spawnFloatingHearts();
+
+      try {
+        await fetch(`${DB_URL}/loves.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(currentLoveCount)
+        });
+      } catch (err) {
+        // Tetap tampilkan efek & angka lokal jika jaringan sedang lambat
+      }
+    });
+
+    loadLoveCount();
 
     const photoInput = document.getElementById("photoInput");
     const addPhotoBtn = document.getElementById("addPhotoBtn");
