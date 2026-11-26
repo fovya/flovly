@@ -352,6 +352,101 @@
       margin-bottom: 4px;
     }
 
+    .mood-status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+      margin-bottom: 14px;
+    }
+
+    .mood-status-card {
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mood-owner {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .mood-current {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .mood-note-preview {
+      font-size: 0.8rem;
+      color: var(--text-main);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .mood-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .who-switch {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .who-btn {
+      padding: 9px 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-soft);
+      background: #fffdfd;
+      color: var(--text-muted);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .who-btn.is-active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .mood-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mood-chip {
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #fffdfd;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .mood-chip.is-selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
     .love-calc-form {
       display: flex;
       flex-direction: column;
@@ -506,6 +601,142 @@
       line-height: 1.45;
       color: var(--text-main);
       word-break: break-word;
+    }
+
+    .note-actions {
+      margin-top: 8px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .reply-toggle-btn {
+      background: #ffffff;
+      border: 1px solid var(--border-soft);
+      color: var(--accent-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .reply-toggle-btn:hover {
+      background: #ffe8f0;
+    }
+
+    .replies-thread {
+      margin-top: 10px;
+      padding-left: 10px;
+      border-left: 2px solid #f5bfd4;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .reply-item {
+      background: #ffffff;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 8px 10px;
+    }
+
+    .reply-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .reply-author {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .reply-time {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .reply-text {
+      font-size: 0.84rem;
+      line-height: 1.38;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .reply-form {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-soft);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .reply-form.is-open {
+      display: flex;
+    }
+
+    .reply-who-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .reply-who-btn {
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      color: var(--text-muted);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .reply-who-btn.is-active {
+      background: #ffe8f0;
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .reply-input {
+      width: 100%;
+      border: 1.5px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 8px 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.84rem;
+      color: var(--text-main);
+      background: #ffffff;
+      outline: none;
+    }
+
+    .reply-input:focus {
+      border-color: var(--accent);
+    }
+
+    .reply-submit-btn {
+      align-self: flex-end;
+      padding: 7px 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .reply-submit-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
 
     .empty-notes {
@@ -663,6 +894,53 @@
 
       <input type="file" id="photoInput" accept="image/*" multiple hidden />
       <button type="button" class="upload-btn" id="addPhotoBtn">📷 Tambah Foto Kenangan Lainnya</button>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">Jurnal Mood</h2>
+      <p class="subtitle">Saling update mood harian Fatur &amp; Lyvia ♡</p>
+
+      <div class="mood-status-grid">
+        <div class="mood-status-card">
+          <div class="mood-owner">Mood Fatur</div>
+          <div class="mood-current" id="faturMoodDisplay">✨ Memuat...</div>
+          <div class="mood-note-preview" id="faturMoodNote"></div>
+          <div class="mood-time" id="faturMoodTime"></div>
+        </div>
+        <div class="mood-status-card">
+          <div class="mood-owner">Mood Lyvia</div>
+          <div class="mood-current" id="lyviaMoodDisplay">✨ Memuat...</div>
+          <div class="mood-note-preview" id="lyviaMoodNote"></div>
+          <div class="mood-time" id="lyviaMoodTime"></div>
+        </div>
+      </div>
+
+      <form class="note-form" id="moodForm">
+        <div class="who-switch">
+          <button type="button" class="who-btn is-active" id="moodWhoFatur" data-who="fatur">Fatur</button>
+          <button type="button" class="who-btn" id="moodWhoLyvia" data-who="lyvia">Lyvia</button>
+        </div>
+
+        <div class="mood-options" id="moodOptions">
+          <button type="button" class="mood-chip is-selected" data-mood="🥰 Happy">🥰 Happy</button>
+          <button type="button" class="mood-chip" data-mood="🥺 Kangen">🥺 Kangen</button>
+          <button type="button" class="mood-chip" data-mood="😴 Ngantuk">😴 Ngantuk</button>
+          <button type="button" class="mood-chip" data-mood="🤗 Butuh Peluk">🤗 Butuh Peluk</button>
+          <button type="button" class="mood-chip" data-mood="🫶 Gemes">🫶 Gemes</button>
+          <button type="button" class="mood-chip" data-mood="🌧️ Bad Mood">🌧️ Bad Mood</button>
+        </div>
+
+        <input
+          type="text"
+          id="moodNoteInput"
+          class="input-field"
+          placeholder="Catatan singkat (opsional, mis. lagi kangen kamu)..."
+          maxlength="120"
+        />
+
+        <button type="submit" class="submit-btn" id="moodSubmitBtn">💌 Simpan Mood</button>
+        <div class="status-text" id="moodStatusText"></div>
+      </form>
     </section>
 
     <section class="card">
@@ -859,7 +1137,114 @@
 
     loadLoveCount();
 
-    // --- Love Calculator + Hack Nama Kalian (90-100%) & Blacklist Mantan ---
+    // --- Jurnal Mood (Firebase) ---
+    const moodWhoFatur = document.getElementById("moodWhoFatur");
+    const moodWhoLyvia = document.getElementById("moodWhoLyvia");
+    const moodChips = Array.from(document.querySelectorAll(".mood-chip"));
+    const moodForm = document.getElementById("moodForm");
+    const moodNoteInput = document.getElementById("moodNoteInput");
+    const moodSubmitBtn = document.getElementById("moodSubmitBtn");
+    const moodStatusText = document.getElementById("moodStatusText");
+
+    const faturMoodDisplay = document.getElementById("faturMoodDisplay");
+    const faturMoodNote = document.getElementById("faturMoodNote");
+    const faturMoodTime = document.getElementById("faturMoodTime");
+    const lyviaMoodDisplay = document.getElementById("lyviaMoodDisplay");
+    const lyviaMoodNote = document.getElementById("lyviaMoodNote");
+    const lyviaMoodTime = document.getElementById("lyviaMoodTime");
+
+    let selectedMoodOwner = "fatur";
+    let selectedMoodLabel = "🥰 Happy";
+
+    function formatShortDate(timestamp) {
+      const d = new Date(timestamp);
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      const day = d.getDate();
+      const month = months[d.getMonth()];
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${day} ${month} • ${hh}.${mm}`;
+    }
+
+    function setMoodOwner(who) {
+      selectedMoodOwner = who;
+      moodWhoFatur.classList.toggle("is-active", who === "fatur");
+      moodWhoLyvia.classList.toggle("is-active", who === "lyvia");
+    }
+
+    moodWhoFatur.addEventListener("click", () => setMoodOwner("fatur"));
+    moodWhoLyvia.addEventListener("click", () => setMoodOwner("lyvia"));
+
+    moodChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        moodChips.forEach((c) => c.classList.remove("is-selected"));
+        chip.classList.add("is-selected");
+        selectedMoodLabel = chip.dataset.mood || chip.textContent.trim();
+      });
+    });
+
+    function renderMoodCard(entry, displayEl, noteEl, timeEl) {
+      if (!entry || !entry.mood) {
+        displayEl.textContent = "Belum di-update";
+        noteEl.textContent = "";
+        timeEl.textContent = "";
+        return;
+      }
+      displayEl.textContent = entry.mood;
+      noteEl.textContent = entry.note ? `"${entry.note}"` : "";
+      timeEl.textContent = entry.updatedAt ? formatShortDate(entry.updatedAt) : "";
+    }
+
+    async function loadMoods() {
+      try {
+        const res = await fetch(`${DB_URL}/moods.json`);
+        const data = await res.json();
+        renderMoodCard(data && data.fatur, faturMoodDisplay, faturMoodNote, faturMoodTime);
+        renderMoodCard(data && data.lyvia, lyviaMoodDisplay, lyviaMoodNote, lyviaMoodTime);
+      } catch (err) {
+        faturMoodDisplay.textContent = "Gagal memuat";
+        lyviaMoodDisplay.textContent = "Gagal memuat";
+      }
+    }
+
+    moodForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const note = moodNoteInput.value.trim();
+
+      moodSubmitBtn.disabled = true;
+      moodStatusText.textContent = "Menyimpan mood...";
+
+      try {
+        const payload = {
+          mood: selectedMoodLabel,
+          note,
+          updatedAt: Date.now()
+        };
+
+        const res = await fetch(`${DB_URL}/moods/${selectedMoodOwner}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error("Gagal menyimpan mood");
+        }
+
+        moodNoteInput.value = "";
+        moodStatusText.textContent = `Mood ${selectedMoodOwner === "fatur" ? "Fatur" : "Lyvia"} tersimpan!`;
+        spawnFloatingHearts();
+        await loadMoods();
+      } catch (err) {
+        moodStatusText.textContent = "Gagal menyimpan mood, coba lagi ya.";
+      } finally {
+        moodSubmitBtn.disabled = false;
+      }
+    });
+
+    loadMoods();
+
+    // --- Love Calculator + Hack Nama Kalian (90-100%), Orang Lain (0-25%), & Blacklist Mantan ---
     const blacklistedExNames = [
       "imel",
       "ika",
@@ -867,7 +1252,9 @@
       "sabrina",
       "alimz",
       "windu",
-      "alfi"
+      "alfi",
+      "nuke",
+      "nur"
     ];
 
     const mainCoupleNames = [
@@ -908,8 +1295,12 @@
       return 90 + (hashPair(a, b) % 11); // 90% - 100%
     }
 
+    function calculateLowMatchScore(a, b) {
+      return hashPair(a, b) % 26; // 0% - 25%
+    }
+
     function calculateDeterministicScore(a, b) {
-      return 35 + (hashPair(a, b) % 61); // 35% - 95% untuk nama umum
+      return 35 + (hashPair(a, b) % 61); // 35% - 95%
     }
 
     loveCalcForm.addEventListener("submit", (e) => {
@@ -930,6 +1321,7 @@
 
       const isBlacklistedWithMain = hasMainPartner && hasBlacklistedName;
       const isBothMainNames = isMainA && isMainB;
+      const isMainWithOutsider = hasMainPartner && !isBothMainNames && !hasBlacklistedName;
 
       let score = 0;
       let verdict = "";
@@ -940,6 +1332,9 @@
       } else if (isBothMainNames) {
         score = calculateHackedCoupleScore(normA, normB);
         verdict = "Takdir banget! Fatur & Lyvia menyatu ♡";
+      } else if (isMainWithOutsider) {
+        score = calculateLowMatchScore(normA, normB);
+        verdict = "Kurang klik, hati cuma buat pasangan aslinya 😝";
       } else {
         score = calculateDeterministicScore(normA, normB);
         if (score >= 80) {
@@ -959,7 +1354,7 @@
       loveBarFill.style.width = `${score}%`;
       loveVerdictText.textContent = verdict;
 
-      if (!isBlacklistedWithMain) {
+      if (!isBlacklistedWithMain && !isMainWithOutsider) {
         spawnFloatingHearts();
       }
     });
@@ -999,22 +1394,13 @@
       photoInput.value = "";
     });
 
-    function formatShortDate(timestamp) {
-      const d = new Date(timestamp);
-      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-      const day = d.getDate();
-      const month = months[d.getMonth()];
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mm = String(d.getMinutes()).padStart(2, "0");
-      return `${day} ${month} • ${hh}.${mm}`;
-    }
-
     const notesList = document.getElementById("notesList");
     const noteForm = document.getElementById("noteForm");
     const authorInput = document.getElementById("authorInput");
     const messageInput = document.getElementById("messageInput");
     const submitBtn = document.getElementById("submitBtn");
     const statusText = document.getElementById("statusText");
+    const openReplyNoteIds = new Set();
 
     async function loadNotes() {
       try {
@@ -1060,6 +1446,150 @@
           header.appendChild(time);
           card.appendChild(header);
           card.appendChild(msg);
+
+          const repliesObj = note.replies && typeof note.replies === "object" ? note.replies : {};
+          const replyItems = Object.values(repliesObj)
+            .filter((r) => r && r.message)
+            .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+          if (replyItems.length > 0) {
+            const threadEl = document.createElement("div");
+            threadEl.className = "replies-thread";
+
+            replyItems.forEach((rep) => {
+              const repEl = document.createElement("div");
+              repEl.className = "reply-item";
+
+              const repMeta = document.createElement("div");
+              repMeta.className = "reply-meta";
+
+              const repAuthor = document.createElement("span");
+              repAuthor.className = "reply-author";
+              repAuthor.textContent = rep.author || "Fatur & Lyvia";
+
+              const repTime = document.createElement("span");
+              repTime.className = "reply-time";
+              repTime.textContent = formatShortDate(rep.createdAt || Date.now());
+
+              const repText = document.createElement("div");
+              repText.className = "reply-text";
+              repText.textContent = rep.message;
+
+              repMeta.appendChild(repAuthor);
+              repMeta.appendChild(repTime);
+              repEl.appendChild(repMeta);
+              repEl.appendChild(repText);
+              threadEl.appendChild(repEl);
+            });
+
+            card.appendChild(threadEl);
+          }
+
+          const actionsEl = document.createElement("div");
+          actionsEl.className = "note-actions";
+
+          const replyToggleBtn = document.createElement("button");
+          replyToggleBtn.type = "button";
+          replyToggleBtn.className = "reply-toggle-btn";
+          replyToggleBtn.textContent = "💬 Balas (Fatur & Lyvia)";
+
+          const replyForm = document.createElement("form");
+          replyForm.className = "reply-form";
+          if (openReplyNoteIds.has(note.id)) {
+            replyForm.classList.add("is-open");
+          }
+
+          let chosenReplier = "Fatur";
+          const whoRow = document.createElement("div");
+          whoRow.className = "reply-who-row";
+
+          const faturReplyBtn = document.createElement("button");
+          faturReplyBtn.type = "button";
+          faturReplyBtn.className = "reply-who-btn is-active";
+          faturReplyBtn.textContent = "Fatur";
+
+          const lyviaReplyBtn = document.createElement("button");
+          lyviaReplyBtn.type = "button";
+          lyviaReplyBtn.className = "reply-who-btn";
+          lyviaReplyBtn.textContent = "Lyvia";
+
+          function selectReplier(name) {
+            chosenReplier = name;
+            faturReplyBtn.classList.toggle("is-active", name === "Fatur");
+            lyviaReplyBtn.classList.toggle("is-active", name === "Lyvia");
+          }
+
+          faturReplyBtn.addEventListener("click", () => selectReplier("Fatur"));
+          lyviaReplyBtn.addEventListener("click", () => selectReplier("Lyvia"));
+
+          whoRow.appendChild(faturReplyBtn);
+          whoRow.appendChild(lyviaReplyBtn);
+
+          const replyInput = document.createElement("input");
+          replyInput.type = "text";
+          replyInput.className = "reply-input";
+          replyInput.placeholder = "Tulis balasan singkat...";
+          replyInput.maxlength = "250";
+          replyInput.required = true;
+
+          const replySubmitBtn = document.createElement("button");
+          replySubmitBtn.type = "submit";
+          replySubmitBtn.className = "reply-submit-btn";
+          replySubmitBtn.textContent = "Kirim Balasan";
+
+          replyToggleBtn.addEventListener("click", () => {
+            const willOpen = !replyForm.classList.contains("is-open");
+            replyForm.classList.toggle("is-open", willOpen);
+            if (willOpen) {
+              openReplyNoteIds.add(note.id);
+              replyInput.focus();
+            } else {
+              openReplyNoteIds.delete(note.id);
+            }
+          });
+
+          replyForm.addEventListener("submit", async (ev) => {
+            ev.preventDefault();
+            const replyText = replyInput.value.trim();
+            if (!replyText) return;
+
+            replySubmitBtn.disabled = true;
+            replySubmitBtn.textContent = "Mengirim...";
+
+            try {
+              const rRes = await fetch(`${DB_URL}/notes/${encodeURIComponent(note.id)}/replies.json`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  author: chosenReplier,
+                  message: replyText,
+                  createdAt: Date.now()
+                })
+              });
+
+              const rResult = await rRes.json();
+              if (!rRes.ok || !rResult || !rResult.name) {
+                throw new Error("Gagal mengirim balasan");
+              }
+
+              replyInput.value = "";
+              openReplyNoteIds.delete(note.id);
+              spawnFloatingHearts();
+              await loadNotes();
+            } catch (err) {
+              replySubmitBtn.disabled = false;
+              replySubmitBtn.textContent = "Kirim Balasan";
+            }
+          });
+
+          replyForm.appendChild(whoRow);
+          replyForm.appendChild(replyInput);
+          replyForm.appendChild(replySubmitBtn);
+
+          actionsEl.appendChild(replyToggleBtn);
+          card.appendChild(actionsEl);
+          card.appendChild(replyForm);
+
           notesList.appendChild(card);
         });
       } catch (err) {
