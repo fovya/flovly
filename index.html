@@ -139,15 +139,15 @@
       gap: 10px;
     }
 
-    .little-person-btn {
+    .couple-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 10px 18px;
+      gap: 10px;
+      padding: 8px 18px 8px 12px;
       border: 1.5px solid var(--border-soft);
       border-radius: 999px;
-      background: linear-gradient(135deg, #fff7fa 0%, #ffe6f0 100%);
+      background: linear-gradient(135deg, #fff8fb 0%, #ffe6f0 100%);
       color: var(--accent-dark);
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.88rem;
@@ -157,30 +157,47 @@
       transition: transform 0.15s ease, background-color 0.2s ease;
     }
 
-    .little-person-btn:hover {
-      background: #ffe0ec;
+    .couple-btn:hover {
+      background: #ffdfec;
     }
 
-    .little-person-btn:active {
+    .couple-btn:active {
       transform: scale(0.93);
     }
 
-    .little-avatar {
-      font-size: 1.25rem;
-      line-height: 1;
-      display: inline-block;
-      transition: transform 0.2s ease;
+    .couple-duo {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
     }
 
-    .little-person-btn.is-bouncing .little-avatar {
-      animation: littleHop 0.45s ease;
+    .chibi-svg {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      display: block;
     }
 
-    @keyframes littleHop {
-      0% { transform: translateY(0) scale(1); }
-      35% { transform: translateY(-7px) scale(1.18) rotate(-8deg); }
-      70% { transform: translateY(1px) scale(0.96) rotate(6deg); }
-      100% { transform: translateY(0) scale(1) rotate(0deg); }
+    .couple-btn.is-bouncing .chibi-boy {
+      animation: boyHop 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .couple-btn.is-bouncing .chibi-girl {
+      animation: girlHop 0.48s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s;
+    }
+
+    @keyframes boyHop {
+      0% { transform: translateY(0) rotate(0deg); }
+      35% { transform: translateY(-6px) rotate(-6deg); }
+      70% { transform: translateY(1px) rotate(4deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    @keyframes girlHop {
+      0% { transform: translateY(0) rotate(0deg); }
+      35% { transform: translateY(-7px) rotate(6deg); }
+      70% { transform: translateY(1px) rotate(-4deg); }
+      100% { transform: translateY(0) rotate(0deg); }
     }
 
     .love-count {
@@ -502,12 +519,45 @@
       </div>
 
       <div class="love-box">
-        <button type="button" class="little-person-btn" id="loveBtn" aria-label="Colek orang kecil">
-          <span class="little-avatar" id="littleAvatar">🧸</span>
-          <span>Colek si kecil</span>
+        <button type="button" class="couple-btn" id="loveBtn" aria-label="Kirim pesan manis untuk Lyvia">
+          <span class="couple-duo">
+            <!-- Orang Kecil Cowok (Fatur) -->
+            <svg class="chibi-svg chibi-boy" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M20 22C20 15 25 11 32 11C39 11 44 15 44 22" stroke="#d83470" stroke-width="2.2" stroke-linecap="round" />
+              <circle cx="32" cy="27" r="12.5" fill="#ffe0d6" stroke="#d83470" stroke-width="2" />
+              <ellipse cx="24" cy="29.5" rx="2.8" ry="1.8" fill="#ff8fb8" opacity="0.8" />
+              <ellipse cx="40" cy="29.5" rx="2.8" ry="1.8" fill="#ff8fb8" opacity="0.8" />
+              <circle cx="27.8" cy="26.5" r="1.9" fill="#3d2430" />
+              <circle cx="36.2" cy="26.5" r="1.9" fill="#3d2430" />
+              <path d="M29.5 31.2C30.4 32.8 33.6 32.8 34.5 31.2" stroke="#d83470" stroke-width="2" stroke-linecap="round" />
+              <path d="M22 46C22 41.5 26 39.5 32 39.5C38 39.5 42 41.5 42 46V52H22V46Z" fill="#ffd6e6" stroke="#d83470" stroke-width="2" stroke-linejoin="round" />
+              <path d="M22 44L16 41" stroke="#d83470" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M42 44L48 41" stroke="#d83470" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M27.5 52V57.5" stroke="#d83470" stroke-width="2.4" stroke-linecap="round" />
+              <path d="M36.5 52V57.5" stroke="#d83470" stroke-width="2.4" stroke-linecap="round" />
+            </svg>
+            <!-- Orang Kecil Cewek (Lyvia) -->
+            <svg class="chibi-svg chibi-girl" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="22" cy="14" r="6" fill="#ff7aa8" />
+              <circle cx="42" cy="14" r="6" fill="#ff7aa8" />
+              <circle cx="32" cy="15" r="4.5" fill="#f24b88" />
+              <circle cx="32" cy="27" r="12.5" fill="#ffe0d6" stroke="#d83470" stroke-width="2" />
+              <ellipse cx="24" cy="29.5" rx="2.8" ry="1.8" fill="#ff8fb8" opacity="0.85" />
+              <ellipse cx="40" cy="29.5" rx="2.8" ry="1.8" fill="#ff8fb8" opacity="0.85" />
+              <circle cx="27.8" cy="26.5" r="1.9" fill="#3d2430" />
+              <circle cx="36.2" cy="26.5" r="1.9" fill="#3d2430" />
+              <path d="M29.5 31.2C30.4 32.8 33.6 32.8 34.5 31.2" stroke="#d83470" stroke-width="2" stroke-linecap="round" />
+              <path d="M21 47L24 39.5H40L43 47L45 52H19L21 47Z" fill="#ff85b3" stroke="#d83470" stroke-width="2" stroke-linejoin="round" />
+              <path d="M22.5 43.5L16 40.5" stroke="#d83470" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M41.5 43.5L48 40.5" stroke="#d83470" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M27.5 52V57.5" stroke="#d83470" stroke-width="2.4" stroke-linecap="round" />
+              <path d="M36.5 52V57.5" stroke="#d83470" stroke-width="2.4" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span>Fatur &amp; Lyvia</span>
           <span class="love-count" id="loveCount">0</span>
         </button>
-        <div class="love-msg-bubble" id="loveMsgBubble">Colek orang kecilnya buat keluar ucapan manja + hati melayang ✨</div>
+        <div class="love-msg-bubble" id="loveMsgBubble">Klik Fatur &amp; Lyvia buat munculin kata-kata manis buat Lyvia ✨</div>
       </div>
     </section>
 
@@ -605,21 +655,17 @@
     setInterval(updateCounter, 1000);
 
     const loveBtn = document.getElementById("loveBtn");
-    const littleAvatar = document.getElementById("littleAvatar");
     const loveCountEl = document.getElementById("loveCount");
     const loveMsgBubble = document.getElementById("loveMsgBubble");
 
     const cuteLoveMessages = [
-      "Peluk hangat buat Lyvia 🩷",
-      "Fatur kangen nih, jangan lupa senyum ya ✨",
-      "Satu colek = satu sayang tambahan buat kamu 💖",
-      "Gemes banget hari ini 🧸💕",
-      "Selalu sayang Fatur & Lyvia 🫶",
-      "Jangan lupa makan & minum air putih ya 🌸",
-      "Hari-hari bareng kamu tuh favorit banget 🌷",
-      "Kirim cipika-cipiki virtual dulu nih 😘💕"
+      "Luv u endlessly ♡",
+      "loving you, selalu",
+      "a little cinta",
+      "you're my everything ♡",
+      "cinta tanpa jeda",
+      "falling in love, lagii"
     ];
-    const littleCharacters = ["🧸", "🫶", "🌷", "🐣"];
     const heartEmojis = ["❤️", "🩷", "💖", "💕", "✨"];
     let currentLoveCount = 0;
     let lastMsgIndex = -1;
@@ -636,8 +682,7 @@
       }
     }
 
-    function hopLittlePerson() {
-      littleAvatar.textContent = littleCharacters[Math.floor(Math.random() * littleCharacters.length)];
+    function hopCouple() {
       loveBtn.classList.remove("is-bouncing");
       void loveBtn.offsetWidth;
       loveBtn.classList.add("is-bouncing");
@@ -670,7 +715,7 @@
     loveBtn.addEventListener("click", async () => {
       currentLoveCount += 1;
       loveCountEl.textContent = currentLoveCount.toLocaleString("id-ID");
-      hopLittlePerson();
+      hopCouple();
       pickNextCuteMessage();
       spawnFloatingHearts();
 
