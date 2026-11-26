@@ -43,13 +43,6 @@
             <input type="file" id="uploadPhoto" accept="image/*" class="hidden" onchange="loadPhoto(event)">
         </div>
 
-        <!-- Kutipan Romantis Bahasa Inggris -->
-        <div class="bg-rose-50/60 p-4 rounded-2xl mb-6 border border-rose-100">
-            <h2 class="text-sm font-semibold text-rose-600 mb-1">✨ My Favorite Person ✨</h2>
-            <p class="text-xs sm:text-sm text-gray-600 italic leading-relaxed">
-                "You are my favorite person, my safe place, and the home I never knew I needed."
-            </p>
-        </div>
 
         <!-- Love Counter (Hitung Hari) -->
         <div class="mb-6">
@@ -89,7 +82,7 @@
         <div id="galleryGrid" class="grid grid-cols-2 gap-3 mb-6">
             <!-- Foto 1 -->
             <div class="relative rounded-2xl overflow-hidden shadow group aspect-square cursor-pointer" onclick="zoomImage(this)">
-                <img src="foto1.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                <img src="foto1.jpg" alt="Waterfall Trip" onError="this.src='https://images.unsplash.com/photo-1518568814500-bf09bbec8fc0?q=80&w=600&auto=format&fit=crop'" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 flex items-end p-2">
                     <span class="text-[10px] text-white font-medium">🏞️ Waterfall Trip</span>
                 </div>
@@ -97,7 +90,7 @@
 
             <!-- Foto 2 -->
             <div class="relative rounded-2xl overflow-hidden shadow group aspect-square cursor-pointer" onclick="zoomImage(this)">
-                <img src="foto2.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                <img src="foto2.jpg" alt="Sweet Together" onError="this.src='https://images.unsplash.com/photo-1518568814500-bf09bbec8fc0?q=80&w=600&auto=format&fit=crop'" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 flex items-end p-2">
                     <span class="text-[10px] text-white font-medium">📱 Sweet Together</span>
                 </div>
@@ -105,7 +98,7 @@
 
             <!-- Foto 3 -->
             <div class="relative rounded-2xl overflow-hidden shadow group aspect-square cursor-pointer" onclick="zoomImage(this)">
-                <img src="foto3.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                <img src="foto3.jpg" alt="Funny Moments" onError="this.src='https://images.unsplash.com/photo-1518568814500-bf09bbec8fc0?q=80&w=600&auto=format&fit=crop'" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 flex items-end p-2">
                     <span class="text-[10px] text-white font-medium">🐥 Funny Moments</span>
                 </div>
@@ -113,15 +106,15 @@
 
             <!-- Foto 4 -->
             <div class="relative rounded-2xl overflow-hidden shadow group aspect-square cursor-pointer" onclick="zoomImage(this)">
-                <img src="foto4.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                <img src="foto4.jpg" alt="Cute Filter" onError="this.src='https://images.unsplash.com/photo-1518568814500-bf09bbec8fc0?q=80&w=600&auto=format&fit=crop'" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 flex items-end p-2">
                     <span class="text-[10px] text-white font-medium">🥸 Cute Filter</span>
                 </div>
             </div>
 
             <!-- Foto 5 -->
-            <div class="relative rounded-2xl overflow-hidden shadow group aspect-square cursor-pointer col-span-2" onclick="zoomImage(this)">
-                <img src="foto5.jpg" class="w-full h-48 object-cover transition duration-300 group-hover:scale-110">
+            <div class="relative rounded-2xl overflow-hidden shadow group h-48 cursor-pointer col-span-2" onclick="zoomImage(this)">
+                <img src="foto5.jpg" alt="Our Memories" onError="this.src='https://images.unsplash.com/photo-1518568814500-bf09bbec8fc0?q=80&w=600&auto=format&fit=crop'" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90 flex items-end p-2">
                     <span class="text-[10px] text-white font-medium">✨ Our Memories</span>
                 </div>
