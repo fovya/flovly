@@ -262,6 +262,26 @@
       }
     }
 
+    .confetti-piece {
+      position: fixed;
+      top: -16px;
+      pointer-events: none;
+      z-index: 998;
+      border-radius: 3px;
+      animation: confettiFall linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(105vh) rotate(620deg);
+      }
+    }
+
     .hero-block {
       margin-bottom: 16px;
     }
@@ -350,6 +370,136 @@
       color: var(--accent);
       text-align: center;
       margin-bottom: 4px;
+    }
+
+    /* --- Mini Puzzle (3x3 Mudah & Santai) --- */
+    .puzzle-photo-picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+    }
+
+    .puzzle-photo-btn {
+      border: 1.5px solid var(--border-soft);
+      background: var(--accent-soft);
+      color: var(--text-muted);
+      border-radius: 14px;
+      padding: 8px 6px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .puzzle-photo-btn.is-active {
+      background: #ffe8f0;
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .puzzle-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .puzzle-hint {
+      font-size: 0.75rem;
+      color: var(--accent-dark);
+      font-weight: 600;
+    }
+
+    .puzzle-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      aspect-ratio: 1 / 1;
+      background: var(--accent-soft);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 8px;
+    }
+
+    .puzzle-tile {
+      position: relative;
+      border: 2px solid #ffffff;
+      border-radius: 12px;
+      cursor: pointer;
+      background-repeat: no-repeat;
+      background-size: 300% 300%;
+      box-shadow: 0 4px 10px rgba(242, 75, 136, 0.12);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .puzzle-tile:hover {
+      transform: scale(0.98);
+    }
+
+    .puzzle-tile.is-selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(242, 75, 136, 0.28);
+      transform: scale(0.95);
+    }
+
+    .puzzle-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .puzzle-secondary-btn {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-soft);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .puzzle-secondary-btn:hover {
+      background: #ffe8f0;
+    }
+
+    .puzzle-win-banner {
+      margin-top: 14px;
+      background: linear-gradient(135deg, #fff0f6 0%, #ffe3ee 100%);
+      border: 1.5px solid var(--accent);
+      border-radius: 18px;
+      padding: 16px 14px;
+      text-align: center;
+      display: none;
+      animation: popIn 0.28s ease-out;
+    }
+
+    .puzzle-win-banner.is-visible {
+      display: block;
+    }
+
+    .puzzle-win-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.35rem;
+      color: var(--accent-dark);
+      margin-bottom: 4px;
+    }
+
+    .puzzle-win-sub {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
     }
 
     .mood-status-grid {
@@ -979,6 +1129,34 @@
     </section>
 
     <section class="card">
+      <h2 class="section-title">Mini Puzzle</h2>
+      <p class="subtitle">Tap 2 kotak buat tukar posisi sampai gambarnya utuh ♡</p>
+
+      <div class="puzzle-photo-picker" id="puzzlePhotoPicker">
+        <button type="button" class="puzzle-photo-btn is-active" data-src="puzzle1.jpg">🌊 Air Terjun</button>
+        <button type="button" class="puzzle-photo-btn" data-src="puzzle2.jpg">🪞 Mirror Selfie</button>
+        <button type="button" class="puzzle-photo-btn" data-src="puzzle3.jpg">🌉 Jembatan</button>
+      </div>
+
+      <div class="puzzle-topbar">
+        <span id="puzzleProgressText">Benar: 0 / 9</span>
+        <span class="puzzle-hint">Mode santai 3×3</span>
+      </div>
+
+      <div class="puzzle-board" id="puzzleBoard" aria-label="Papan Mini Puzzle"></div>
+
+      <div class="puzzle-actions">
+        <button type="button" class="puzzle-secondary-btn" id="puzzleShuffleBtn">🔀 Acak Ulang</button>
+        <button type="button" class="puzzle-secondary-btn" id="puzzleHintBtn">💡 Bantuan 1 Kotak</button>
+      </div>
+
+      <div class="puzzle-win-banner" id="puzzleWinBanner">
+        <div class="puzzle-win-title">you complete my little world ♡</div>
+        <div class="puzzle-win-sub">Yeay, puzzle Fatur &amp; Lyvia berhasil disusun! ✨</div>
+      </div>
+    </section>
+
+    <section class="card">
       <h2 class="section-title">Jurnal Mood</h2>
       <p class="subtitle">Saling update mood harian Fatur &amp; Lyvia ♡</p>
 
@@ -1189,6 +1367,22 @@
       }
     }
 
+    function spawnConfettiBurst() {
+      const colors = ["#f24b88", "#ff8fb8", "#ffd166", "#a8e6cf", "#cdb4db", "#ff6b6b"];
+      for (let i = 0; i < 28; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.backgroundColor = colors[i % colors.length];
+        piece.style.width = `${6 + Math.random() * 6}px`;
+        piece.style.height = `${10 + Math.random() * 8}px`;
+        piece.style.animationDuration = `${1.8 + Math.random() * 1.4}s`;
+        piece.style.animationDelay = `${Math.random() * 0.35}s`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 3400);
+      }
+    }
+
     function hopPerson(btnEl) {
       btnEl.classList.remove("is-bouncing");
       void btnEl.offsetWidth;
@@ -1251,6 +1445,139 @@
     lyviaPersonBtn.addEventListener("click", () => handlePersonClick("lyvia", lyviaPersonBtn));
 
     loadLoveCount();
+
+    // --- Mini Puzzle (3x3 Santai + 3 Foto Baru + Love & Confetti) ---
+    const puzzleBoard = document.getElementById("puzzleBoard");
+    const puzzlePhotoButtons = Array.from(document.querySelectorAll(".puzzle-photo-btn"));
+    const puzzleProgressText = document.getElementById("puzzleProgressText");
+    const puzzleShuffleBtn = document.getElementById("puzzleShuffleBtn");
+    const puzzleHintBtn = document.getElementById("puzzleHintBtn");
+    const puzzleWinBanner = document.getElementById("puzzleWinBanner");
+
+    const PUZZLE_SIZE = 3;
+    const TOTAL_TILES = PUZZLE_SIZE * PUZZLE_SIZE;
+    let currentPuzzleSrc = "puzzle1.jpg";
+    let puzzlePieces = []; // berisi index potongan asli (0..8) di tiap slot (0..8)
+    let selectedTileSlot = null;
+    let puzzleSolvedCelebrated = false;
+
+    function createShuffledPieces() {
+      const arr = Array.from({ length: TOTAL_TILES }, (_, i) => i);
+      do {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      } while (arr.every((pieceIdx, slotIdx) => pieceIdx === slotIdx));
+      return arr;
+    }
+
+    function countCorrectPieces() {
+      return puzzlePieces.reduce(
+        (acc, pieceIdx, slotIdx) => acc + (pieceIdx === slotIdx ? 1 : 0),
+        0
+      );
+    }
+
+    function triggerPuzzleCompletion() {
+      if (puzzleSolvedCelebrated) return;
+      puzzleSolvedCelebrated = true;
+      puzzleWinBanner.classList.add("is-visible");
+      spawnFloatingHearts();
+      spawnConfettiBurst();
+    }
+
+    function renderPuzzleBoard() {
+      puzzleBoard.innerHTML = "";
+      const correctCount = countCorrectPieces();
+      puzzleProgressText.textContent = `Benar: ${correctCount} / ${TOTAL_TILES}`;
+
+      puzzlePieces.forEach((pieceIdx, slotIdx) => {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "puzzle-tile";
+        if (selectedTileSlot === slotIdx) {
+          tile.classList.add("is-selected");
+        }
+
+        const col = pieceIdx % PUZZLE_SIZE;
+        const row = Math.floor(pieceIdx / PUZZLE_SIZE);
+        const posX = (col / (PUZZLE_SIZE - 1)) * 100;
+        const posY = (row / (PUZZLE_SIZE - 1)) * 100;
+
+        tile.style.backgroundImage = `url("${currentPuzzleSrc}")`;
+        tile.style.backgroundPosition = `${posX}% ${posY}%`;
+        tile.setAttribute("aria-label", `Potongan puzzle posisi ${slotIdx + 1}`);
+
+        tile.addEventListener("click", () => handlePuzzleTileClick(slotIdx));
+        puzzleBoard.appendChild(tile);
+      });
+
+      if (correctCount === TOTAL_TILES) {
+        triggerPuzzleCompletion();
+      }
+    }
+
+    function handlePuzzleTileClick(slotIdx) {
+      if (selectedTileSlot === null) {
+        selectedTileSlot = slotIdx;
+        renderPuzzleBoard();
+        return;
+      }
+
+      if (selectedTileSlot === slotIdx) {
+        selectedTileSlot = null;
+        renderPuzzleBoard();
+        return;
+      }
+
+      [puzzlePieces[selectedTileSlot], puzzlePieces[slotIdx]] = [
+        puzzlePieces[slotIdx],
+        puzzlePieces[selectedTileSlot]
+      ];
+      selectedTileSlot = null;
+      renderPuzzleBoard();
+    }
+
+    function startNewPuzzle(newSrc) {
+      if (newSrc) {
+        currentPuzzleSrc = newSrc;
+      }
+      selectedTileSlot = null;
+      puzzleSolvedCelebrated = false;
+      puzzleWinBanner.classList.remove("is-visible");
+      puzzlePieces = createShuffledPieces();
+      renderPuzzleBoard();
+    }
+
+    puzzlePhotoButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        puzzlePhotoButtons.forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        startNewPuzzle(btn.dataset.src || "puzzle1.jpg");
+      });
+    });
+
+    puzzleShuffleBtn.addEventListener("click", () => {
+      startNewPuzzle(currentPuzzleSrc);
+    });
+
+    puzzleHintBtn.addEventListener("click", () => {
+      const wrongSlot = puzzlePieces.findIndex((pieceIdx, slotIdx) => pieceIdx !== slotIdx);
+      if (wrongSlot === -1) return;
+
+      const targetPieceSlot = puzzlePieces.indexOf(wrongSlot);
+      if (targetPieceSlot !== -1) {
+        [puzzlePieces[wrongSlot], puzzlePieces[targetPieceSlot]] = [
+          puzzlePieces[targetPieceSlot],
+          puzzlePieces[wrongSlot]
+        ];
+        selectedTileSlot = null;
+        renderPuzzleBoard();
+      }
+    });
+
+    startNewPuzzle("puzzle1.jpg");
 
     // --- Floating Mini Lyvia FYI (Jas Putih + Kacamata) ---
     const fyiFloatingDock = document.getElementById("fyiFloatingDock");
