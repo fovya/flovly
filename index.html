@@ -10,9 +10,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
+      /* Mode Pagi / Siang (Terang & Lembut) */
       --bg-pink: #fff0f5;
       --bg-pink-2: #ffe4ee;
       --card-bg: #ffffff;
+      --surface-alt: #fffdfd;
+      --hover-soft: #ffe8f0;
       --accent: #f24b88;
       --accent-dark: #d83470;
       --accent-soft: #fff5f8;
@@ -20,6 +23,24 @@
       --text-muted: #8c6577;
       --border-soft: #f7dce6;
       --shadow: 0 12px 30px rgba(242, 75, 136, 0.12);
+      --badge-bg: rgba(255, 255, 255, 0.85);
+    }
+
+    /* Mode Malam (Pink Kehitaman / Midnight Pink) */
+    body.night-mode {
+      --bg-pink: #14080e;
+      --bg-pink-2: #220d17;
+      --card-bg: #241019;
+      --surface-alt: #2e1521;
+      --hover-soft: #3a1929;
+      --accent: #ff5c97;
+      --accent-dark: #ff8fb8;
+      --accent-soft: #2e1420;
+      --text-main: #fce7f3;
+      --text-muted: #c99ab0;
+      --border-soft: #472033;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      --badge-bg: rgba(36, 16, 25, 0.9);
     }
 
     * {
@@ -35,6 +56,7 @@
       min-height: 100vh;
       padding: 24px 16px 96px;
       overflow-x: hidden;
+      transition: background 0.6s ease, color 0.6s ease;
     }
 
     .container {
@@ -46,11 +68,41 @@
     }
 
     .card {
+      position: relative;
       background: var(--card-bg);
       border-radius: 24px;
       padding: 22px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-soft);
+      transition: background-color 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    /* Tombol Switch Manual Siang/Malam di Pojok Card Utama */
+    .theme-toggle-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      color: var(--accent-dark);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--hover-soft);
+    }
+
+    .theme-toggle-btn:active {
+      transform: scale(0.94);
     }
 
     .brand-title {
@@ -59,6 +111,7 @@
       color: var(--accent);
       text-align: center;
       margin-bottom: 6px;
+      margin-top: 8px;
     }
 
     .subtitle {
@@ -93,7 +146,7 @@
     }
 
     .social-btn:hover {
-      background: #ffe8f0;
+      background: var(--hover-soft);
     }
 
     .social-btn:active {
@@ -361,7 +414,7 @@
     }
 
     .upload-btn:hover {
-      background: #ffe8f0;
+      background: var(--hover-soft);
     }
 
     .section-title {
@@ -395,7 +448,7 @@
     }
 
     .puzzle-photo-btn.is-active {
-      background: #ffe8f0;
+      background: var(--hover-soft);
       border-color: var(--accent);
       color: var(--accent-dark);
     }
@@ -430,7 +483,7 @@
 
     .puzzle-tile {
       position: relative;
-      border: 2px solid #ffffff;
+      border: 2px solid var(--card-bg);
       border-radius: 12px;
       cursor: pointer;
       background-repeat: no-repeat;
@@ -446,7 +499,7 @@
 
     .puzzle-tile.is-selected {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(242, 75, 136, 0.28);
+      box-shadow: 0 0 0 3px rgba(242, 75, 136, 0.35);
       transform: scale(0.95);
     }
 
@@ -471,12 +524,12 @@
     }
 
     .puzzle-secondary-btn:hover {
-      background: #ffe8f0;
+      background: var(--hover-soft);
     }
 
     .puzzle-win-banner {
       margin-top: 14px;
-      background: linear-gradient(135deg, #fff0f6 0%, #ffe3ee 100%);
+      background: var(--accent-soft);
       border: 1.5px solid var(--accent);
       border-radius: 18px;
       padding: 16px 14px;
@@ -556,7 +609,7 @@
       padding: 9px 12px;
       border-radius: 14px;
       border: 1.5px solid var(--border-soft);
-      background: #fffdfd;
+      background: var(--surface-alt);
       color: var(--text-muted);
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.85rem;
@@ -582,7 +635,7 @@
       padding: 7px 11px;
       border-radius: 999px;
       border: 1px solid var(--border-soft);
-      background: #fffdfd;
+      background: var(--surface-alt);
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.8rem;
@@ -629,7 +682,7 @@
     .love-bar-track {
       width: 100%;
       height: 10px;
-      background: #ffe0ec;
+      background: var(--border-soft);
       border-radius: 999px;
       overflow: hidden;
       margin: 10px 0;
@@ -686,7 +739,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 4px solid #ffffff;
+      border: 4px solid var(--card-bg);
       box-shadow: 0 10px 26px rgba(242, 75, 136, 0.22);
       transition: transform 4.5s cubic-bezier(0.17, 0.67, 0.14, 0.99);
     }
@@ -696,7 +749,7 @@
       width: 62px;
       height: 62px;
       border-radius: 50%;
-      background: #ffffff;
+      background: var(--card-bg);
       border: 3.5px solid var(--border-soft);
       color: var(--accent);
       font-size: 25px;
@@ -706,7 +759,7 @@
       cursor: pointer;
       z-index: 5;
       box-shadow: 0 4px 14px rgba(242, 75, 136, 0.28);
-      transition: transform 0.15s ease;
+      transition: transform 0.15s ease, background-color 0.4s ease;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -726,7 +779,7 @@
     .wheel-modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(61, 36, 48, 0.52);
+      background: rgba(15, 5, 10, 0.68);
       display: none;
       align-items: center;
       justify-content: center;
@@ -741,7 +794,7 @@
     }
 
     .wheel-modal-box {
-      background: #ffffff;
+      background: var(--card-bg);
       border-radius: 24px;
       padding: 26px 20px;
       max-width: 330px;
@@ -798,9 +851,15 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.92rem;
       color: var(--text-main);
-      background: #fffdfd;
+      background: var(--surface-alt);
       outline: none;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, background-color 0.4s ease;
+    }
+
+    .input-field::placeholder,
+    .textarea-field::placeholder {
+      color: var(--text-muted);
+      opacity: 0.75;
     }
 
     .input-field:focus,
@@ -893,7 +952,7 @@
     }
 
     .reply-toggle-btn {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--border-soft);
       color: var(--accent-dark);
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -906,20 +965,20 @@
     }
 
     .reply-toggle-btn:hover {
-      background: #ffe8f0;
+      background: var(--hover-soft);
     }
 
     .replies-thread {
       margin-top: 10px;
       padding-left: 10px;
-      border-left: 2px solid #f5bfd4;
+      border-left: 2px solid var(--accent);
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
     .reply-item {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--border-soft);
       border-radius: 12px;
       padding: 8px 10px;
@@ -974,7 +1033,7 @@
       padding: 6px 8px;
       border-radius: 10px;
       border: 1px solid var(--border-soft);
-      background: #ffffff;
+      background: var(--card-bg);
       color: var(--text-muted);
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.78rem;
@@ -983,7 +1042,7 @@
     }
 
     .reply-who-btn.is-active {
-      background: #ffe8f0;
+      background: var(--hover-soft);
       border-color: var(--accent);
       color: var(--accent-dark);
     }
@@ -996,7 +1055,7 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.84rem;
       color: var(--text-main);
-      background: #ffffff;
+      background: var(--surface-alt);
       outline: none;
     }
 
@@ -1044,7 +1103,7 @@
     }
 
     .fyi-bubble {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1.5px solid var(--accent);
       color: var(--text-main);
       border-radius: 16px;
@@ -1052,9 +1111,10 @@
       font-size: 0.8rem;
       line-height: 1.4;
       font-weight: 600;
-      box-shadow: 0 10px 24px rgba(242, 75, 136, 0.2);
+      box-shadow: 0 10px 24px rgba(242, 75, 136, 0.22);
       animation: popIn 0.22s ease-out;
       position: relative;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
     .fyi-bubble-badge {
@@ -1070,7 +1130,7 @@
     }
 
     .fyi-character-btn {
-      background: rgba(255, 255, 255, 0.92);
+      background: var(--badge-bg);
       border: 1.5px solid var(--border-soft);
       border-radius: 20px;
       padding: 6px 10px 5px;
@@ -1082,7 +1142,7 @@
       box-shadow: 0 8px 20px rgba(242, 75, 136, 0.18);
       -webkit-tap-highlight-color: transparent;
       outline: none;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.4s ease;
     }
 
     .fyi-character-btn:hover {
@@ -1124,19 +1184,23 @@
     .visitor-badge {
       display: inline-block;
       margin: 0 auto;
-      background: rgba(255, 255, 255, 0.75);
+      background: var(--badge-bg);
       border: 1px solid var(--border-soft);
       color: var(--accent-dark);
       font-weight: 600;
       font-size: 0.8rem;
       padding: 5px 12px;
       border-radius: 999px;
+      transition: background-color 0.4s ease;
     }
   </style>
 </head>
 <body>
   <main class="container">
     <section class="card">
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Ganti Tema Pagi atau Malam">
+        ☀️ Pagi
+      </button>
       <h1 class="brand-title">Fatur &amp; Lyvia</h1>
       <p class="subtitle">Bersama sejak 26 Juni 2026</p>
       <div class="social-links">
@@ -1178,7 +1242,7 @@
 
       <div class="love-zone">
         <div class="characters-stage">
-          <!-- Orang Kecil Cowok (Fatur) — klik langsung orangnya -->
+          <!-- Orang Kecil Cowok (Fatur) -->
           <button type="button" class="person-trigger" id="faturPersonBtn" aria-label="Klik Fatur">
             <svg class="chibi-svg chibi-boy" viewBox="0 0 64 76" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 28C18 17 24 12 32 12C40 12 46 17 46 28L44 22L38 18L32 21L26 18L20 22L18 28Z" fill="#5a3646" stroke="#3d2430" stroke-width="2" stroke-linejoin="round" />
@@ -1199,7 +1263,7 @@
 
           <span class="love-counter-pill" id="loveCount">0</span>
 
-          <!-- Orang Kecil Cewek (Lyvia) — klik langsung orangnya -->
+          <!-- Orang Kecil Cewek (Lyvia) -->
           <button type="button" class="person-trigger" id="lyviaPersonBtn" aria-label="Klik Lyvia">
             <svg class="chibi-svg chibi-girl" viewBox="0 0 64 76" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <circle cx="22" cy="15" r="5.5" fill="#ff7aa8" />
@@ -1434,7 +1498,7 @@
     </div>
   </div>
 
-  <!-- Floating Mini Lyvia (Jas Putih + Kacamata) — ikut saat scroll ke atas & bawah -->
+  <!-- Floating Mini Lyvia (Jas Putih + Kacamata) -->
   <div class="fyi-floating-dock" id="fyiFloatingDock" aria-live="polite">
     <div class="fyi-bubble" id="fyiBubble">
       <span class="fyi-bubble-badge">👓 Lyvia FYI</span>
@@ -1468,6 +1532,33 @@
   </div>
 
   <script>
+    // --- Auto Day/Night Theme (18:00 - 05:59 Pink Kehitaman, 06:00 - 17:59 Pink Terang) ---
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    let manualThemeOverride = null;
+
+    function applyTheme(isNight) {
+      document.body.classList.toggle("night-mode", isNight);
+      themeToggleBtn.textContent = isNight ? "🌙 Malam" : "☀️ Pagi";
+    }
+
+    function checkAutoTheme() {
+      if (manualThemeOverride !== null) return;
+      const hour = new Date().getHours();
+      const isNightTime = hour >= 18 || hour < 6;
+      applyTheme(isNightTime);
+    }
+
+    themeToggleBtn.addEventListener("click", () => {
+      const currentlyNight = document.body.classList.contains("night-mode");
+      manualThemeOverride = !currentlyNight;
+      applyTheme(manualThemeOverride);
+    });
+
+    checkAutoTheme();
+    // Cek ulang tiap 1 menit kalau-kalau pergantian jam 18:00 atau 06:00 terjadi pas web lagi dibuka
+    setInterval(checkAutoTheme, 60000);
+
+    // --- Database & Counter ---
     const DB_URL = "https://flofy-notes-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     const startDate = new Date("2026-06-26T00:00:00+07:00").getTime();
@@ -1940,7 +2031,7 @@
 
     loadMoods();
 
-    // --- Love Calculator + Hack Nama Kalian (90-100%), Orang Lain (0-25%), & Blacklist Mantan ---
+    // --- Love Calculator ---
     const blacklistedExNames = [
       "imel",
       "ika",
@@ -2055,7 +2146,7 @@
       }
     });
 
-    // --- Spin the Love Wheel (11 Pilihan Fatur & Lyvia) ---
+    // --- Spin the Love Wheel ---
     const wheelSegments = [
       { label: "Bioskop / Netflix", category: "Date Night", color: "#fff0f5" },
       { label: "Cafe / Ngopi", category: "Date Night", color: "#ffc2d9" },
@@ -2441,4 +2532,3 @@
   </script>
 </body>
 </html>
-
