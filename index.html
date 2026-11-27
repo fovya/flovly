@@ -649,6 +649,139 @@
       color: var(--text-main);
     }
 
+    /* --- Spin the Love Wheel --- */
+    .wheel-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      max-width: 78vw;
+      max-height: 78vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 25px solid var(--accent-dark);
+      z-index: 10;
+      filter: drop-shadow(0 3px 4px rgba(216, 52, 112, 0.28));
+    }
+
+    .wheel-canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid #ffffff;
+      box-shadow: 0 10px 26px rgba(242, 75, 136, 0.22);
+      transition: transform 4.5s cubic-bezier(0.17, 0.67, 0.14, 0.99);
+    }
+
+    .wheel-spin-btn {
+      position: absolute;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3.5px solid var(--border-soft);
+      color: var(--accent);
+      font-size: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      box-shadow: 0 4px 14px rgba(242, 75, 136, 0.28);
+      transition: transform 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .wheel-spin-btn:active {
+      transform: scale(0.92);
+    }
+
+    .wheel-hint {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .wheel-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(61, 36, 48, 0.52);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+      backdrop-filter: blur(3px);
+    }
+
+    .wheel-modal-overlay.is-open {
+      display: flex;
+      animation: popIn 0.24s ease-out;
+    }
+
+    .wheel-modal-box {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 26px 20px;
+      max-width: 330px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid var(--border-soft);
+      box-shadow: 0 14px 32px rgba(242, 75, 136, 0.28);
+    }
+
+    .wheel-modal-tag {
+      display: inline-block;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      color: var(--accent-dark);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .wheel-modal-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .wheel-modal-note {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      border: 1px dashed var(--accent);
+      padding: 10px 12px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+    }
+
     .note-form {
       display: flex;
       flex-direction: column;
@@ -1237,6 +1370,20 @@
     </section>
 
     <section class="card">
+      <h2 class="section-title">Spin the Love Wheel ♡</h2>
+      <p class="subtitle">let's see what love has for us!</p>
+
+      <div class="wheel-stage">
+        <div class="wheel-wrapper">
+          <div class="wheel-pointer"></div>
+          <canvas id="loveWheelCanvas" class="wheel-canvas" width="500" height="500"></canvas>
+          <button type="button" class="wheel-spin-btn" id="spinWheelBtn" aria-label="Putar Roda Cinta">♥</button>
+        </div>
+        <p class="wheel-hint">Tekan tombol ♥ di tengah buat muter roda ✨</p>
+      </div>
+    </section>
+
+    <section class="card">
       <h2 class="section-title">Sweet Notes</h2>
       <p class="subtitle">Tulis catatan manis atau komentar untuk Fatur &amp; Lyvia</p>
 
@@ -1270,6 +1417,16 @@
       <div class="visitor-badge" id="visitorCount">👀 Total kunjungan: memuat...</div>
     </footer>
   </main>
+
+  <!-- Pop-up Hasil Spin the Love Wheel -->
+  <div class="wheel-modal-overlay" id="wheelModal">
+    <div class="wheel-modal-box">
+      <div class="wheel-modal-tag" id="wheelModalCategory">Hasil Pilihan</div>
+      <div class="wheel-modal-title" id="wheelModalTitle">-</div>
+      <div class="wheel-modal-note">Wah harus dilakuin yaa! ♡</div>
+      <button type="button" class="submit-btn" id="closeWheelModalBtn">Siap, Lakuin! 💖</button>
+    </div>
+  </div>
 
   <!-- Floating Mini Lyvia (Jas Putih + Kacamata) — ikut saat scroll ke atas & bawah -->
   <div class="fyi-floating-dock" id="fyiFloatingDock" aria-live="polite">
@@ -1858,6 +2015,94 @@
 
       if (!isBlacklistedWithMain && !isMainWithOutsider) {
         spawnFloatingHearts();
+      }
+    });
+
+    // --- Spin the Love Wheel (11 Pilihan Fatur & Lyvia) ---
+    const wheelSegments = [
+      { label: "Bioskop / Netflix", category: "Date Night", color: "#fff0f5" },
+      { label: "Cafe / Ngopi", category: "Date Night", color: "#ffc2d9" },
+      { label: "Dessert / Es Krim", category: "Date Night", color: "#ffe4ee" },
+      { label: "Street Food", category: "Date Night", color: "#ffa8c9" },
+      { label: "First Impression", category: "Deep Talk", color: "#fff0f5" },
+      { label: "Favorite Memory", category: "Deep Talk", color: "#ffc2d9" },
+      { label: "Future Bucket List", category: "Deep Talk", color: "#ffe4ee" },
+      { label: "Funny Moment", category: "Deep Talk", color: "#ffa8c9" },
+      { label: "Secret Admirer", category: "Deep Talk", color: "#fff0f5" },
+      { label: "Post Foto di Story", category: "Truth or Dare", color: "#ffc2d9" },
+      { label: "Tiruin Gaya Pasangan", category: "Truth or Dare", color: "#ffa8c9" }
+    ];
+
+    const loveWheelCanvas = document.getElementById("loveWheelCanvas");
+    const wheelCtx = loveWheelCanvas.getContext("2d");
+    const spinWheelBtn = document.getElementById("spinWheelBtn");
+    const wheelModal = document.getElementById("wheelModal");
+    const wheelModalCategory = document.getElementById("wheelModalCategory");
+    const wheelModalTitle = document.getElementById("wheelModalTitle");
+    const closeWheelModalBtn = document.getElementById("closeWheelModalBtn");
+
+    const wheelCount = wheelSegments.length;
+    const wheelArc = (2 * Math.PI) / wheelCount;
+    const wheelCenter = loveWheelCanvas.width / 2;
+    let wheelRotation = 0;
+    let isWheelSpinning = false;
+
+    function drawLoveWheel() {
+      for (let i = 0; i < wheelCount; i++) {
+        const startAngle = i * wheelArc - Math.PI / 2;
+        const endAngle = startAngle + wheelArc;
+
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(wheelCenter, wheelCenter);
+        wheelCtx.arc(wheelCenter, wheelCenter, wheelCenter, startAngle, endAngle);
+        wheelCtx.closePath();
+        wheelCtx.fillStyle = wheelSegments[i].color;
+        wheelCtx.fill();
+
+        wheelCtx.save();
+        wheelCtx.translate(wheelCenter, wheelCenter);
+        wheelCtx.rotate(startAngle + wheelArc / 2);
+        wheelCtx.textAlign = "right";
+        wheelCtx.fillStyle = "#3d2430";
+        wheelCtx.font = "bold 16px 'Plus Jakarta Sans', sans-serif";
+        wheelCtx.fillText(wheelSegments[i].label, wheelCenter - 22, 6);
+        wheelCtx.restore();
+      }
+    }
+
+    drawLoveWheel();
+
+    spinWheelBtn.addEventListener("click", () => {
+      if (isWheelSpinning) return;
+      isWheelSpinning = true;
+
+      const extraDeg = Math.floor(Math.random() * 360);
+      wheelRotation += 360 * 6 + extraDeg;
+      loveWheelCanvas.style.transform = `rotate(${wheelRotation}deg)`;
+
+      setTimeout(() => {
+        const normalizedDeg = wheelRotation % 360;
+        const pointerAngle = (360 - normalizedDeg) % 360;
+        const winIdx = Math.floor(pointerAngle / (360 / wheelCount));
+        const chosen = wheelSegments[winIdx];
+
+        wheelModalCategory.textContent = chosen.category;
+        wheelModalTitle.textContent = chosen.label;
+        wheelModal.classList.add("is-open");
+
+        spawnFloatingHearts();
+        spawnConfettiBurst();
+        isWheelSpinning = false;
+      }, 4600);
+    });
+
+    closeWheelModalBtn.addEventListener("click", () => {
+      wheelModal.classList.remove("is-open");
+    });
+
+    wheelModal.addEventListener("click", (e) => {
+      if (e.target === wheelModal) {
+        wheelModal.classList.remove("is-open");
       }
     });
 
