@@ -375,7 +375,7 @@
     /* --- Mini Puzzle (3x3 Mudah & Santai) --- */
     .puzzle-photo-picker {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-top: 10px;
       margin-bottom: 12px;
@@ -1244,15 +1244,15 @@
           <div class="photo-caption">˚ ༘♡ candid moment</div>
         </div>
         <div class="photo-card">
-          <div class="photo-item"><img src="foto3.jpg" alt="Kenangan 3" /></div>
+          <div class="photo-item"><img src="foto3.JPG" alt="Kenangan 3" /></div>
           <div class="photo-caption">꒰ა silly little us ໒꒱</div>
         </div>
         <div class="photo-card">
-          <div class="photo-item"><img src="foto4.jpg" alt="Kenangan 4" /></div>
+          <div class="photo-item"><img src="foto4.JPG" alt="Kenangan 4" /></div>
           <div class="photo-caption">⋆౨ৎ mirror memories</div>
         </div>
         <div class="photo-card">
-          <div class="photo-item"><img src="foto5.jpg" alt="Kenangan 5" /></div>
+          <div class="photo-item"><img src="foto5.JPG" alt="Kenangan 5" /></div>
           <div class="photo-caption">₊˚⊹ cute nonsense</div>
         </div>
         <div class="photo-card">
@@ -1273,11 +1273,13 @@
         <button type="button" class="puzzle-photo-btn is-active" data-src="puzzle1.jpg">🪞 Mirror Selfie</button>
         <button type="button" class="puzzle-photo-btn" data-src="puzzle2.jpg">📸 Photobox</button>
         <button type="button" class="puzzle-photo-btn" data-src="puzzle3.jpg">🌉 Jembatan</button>
+        <button type="button" class="puzzle-photo-btn" id="puzzleCustomPhotoBtn" data-custom="true">📷 Foto Kamu</button>
       </div>
+      <input type="file" id="puzzlePhotoInput" accept="image/*" hidden />
 
       <div class="puzzle-topbar">
         <span id="puzzleProgressText">Benar: 0 / 9</span>
-        <span class="puzzle-hint">Mode santai 3×3</span>
+        <span class="puzzle-hint" id="puzzleSourceLabel">Mode santai 3×3</span>
       </div>
 
       <div class="puzzle-board" id="puzzleBoard" aria-label="Papan Mini Puzzle"></div>
@@ -1607,9 +1609,12 @@
 
     loadLoveCount();
 
-    // --- Mini Puzzle (3x3 Santai + 3 Foto + Love & Confetti) ---
+    // --- Mini Puzzle (3x3 Santai + 3 Foto + Foto Random User + Love & Confetti) ---
     const puzzleBoard = document.getElementById("puzzleBoard");
     const puzzlePhotoButtons = Array.from(document.querySelectorAll(".puzzle-photo-btn"));
+    const puzzleCustomPhotoBtn = document.getElementById("puzzleCustomPhotoBtn");
+    const puzzlePhotoInput = document.getElementById("puzzlePhotoInput");
+    const puzzleSourceLabel = document.getElementById("puzzleSourceLabel");
     const puzzleProgressText = document.getElementById("puzzleProgressText");
     const puzzleShuffleBtn = document.getElementById("puzzleShuffleBtn");
     const puzzleHintBtn = document.getElementById("puzzleHintBtn");
@@ -1618,6 +1623,8 @@
     const PUZZLE_SIZE = 3;
     const TOTAL_TILES = PUZZLE_SIZE * PUZZLE_SIZE;
     let currentPuzzleSrc = "puzzle1.jpg";
+    let customPuzzleSrc = "";
+    let activeCustomObjectUrl = "";
     let puzzlePieces = [];
     let selectedTileSlot = null;
     let puzzleSolvedCelebrated = false;
@@ -1700,10 +1707,11 @@
       renderPuzzleBoard();
     }
 
-    function startNewPuzzle(newSrc) {
+    function startNewPuzzle(newSrc, isCustom = false) {
       if (newSrc) {
         currentPuzzleSrc = newSrc;
       }
+      puzzleSourceLabel.textContent = isCustom ? "Foto kamu • 3×3" : "Mode santai 3×3";
       selectedTileSlot = null;
       puzzleSolvedCelebrated = false;
       puzzleWinBanner.classList.remove("is-visible");
@@ -1712,15 +1720,37 @@
     }
 
     puzzlePhotoButtons.forEach((btn) => {
+      if (btn.dataset.custom === "true") return;
       btn.addEventListener("click", () => {
         puzzlePhotoButtons.forEach((b) => b.classList.remove("is-active"));
         btn.classList.add("is-active");
-        startNewPuzzle(btn.dataset.src || "puzzle1.jpg");
+        startNewPuzzle(btn.dataset.src || "puzzle1.jpg", false);
       });
     });
 
+    puzzleCustomPhotoBtn.addEventListener("click", () => {
+      puzzlePhotoInput.click();
+    });
+
+    puzzlePhotoInput.addEventListener("change", (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (activeCustomObjectUrl) {
+        URL.revokeObjectURL(activeCustomObjectUrl);
+      }
+      activeCustomObjectUrl = URL.createObjectURL(file);
+      customPuzzleSrc = activeCustomObjectUrl;
+
+      puzzlePhotoButtons.forEach((b) => b.classList.remove("is-active"));
+      puzzleCustomPhotoBtn.classList.add("is-active");
+      startNewPuzzle(customPuzzleSrc, true);
+      puzzlePhotoInput.value = "";
+    });
+
     puzzleShuffleBtn.addEventListener("click", () => {
-      startNewPuzzle(currentPuzzleSrc);
+      const isCustomActive = puzzleCustomPhotoBtn.classList.contains("is-active");
+      startNewPuzzle(currentPuzzleSrc, isCustomActive);
     });
 
     puzzleHintBtn.addEventListener("click", () => {
@@ -1738,7 +1768,7 @@
       }
     });
 
-    startNewPuzzle("puzzle1.jpg");
+    startNewPuzzle("puzzle1.jpg", false);
 
     // --- Floating Mini Lyvia FYI (Jas Putih + Kacamata) ---
     const fyiFloatingDock = document.getElementById("fyiFloatingDock");
@@ -2411,3 +2441,4 @@
   </script>
 </body>
 </html>
+
