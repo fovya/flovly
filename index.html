@@ -705,6 +705,109 @@
       color: #ffffff;
     }
 
+    /* --- Karakter Spider-Verse Terhubung Jurnal Mood --- */
+    .spider-mood-stage {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .spider-char-btn {
+      background: var(--accent-soft);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 14px 10px 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.16s ease, border-color 0.2s ease, background-color 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    .spider-char-btn:hover {
+      background: var(--hover-soft);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .spider-char-btn:active {
+      transform: scale(0.95);
+    }
+
+    .spider-avatar-svg {
+      width: 68px;
+      height: 80px;
+      display: block;
+    }
+
+    .spider-char-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .spider-mood-pill {
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-soft);
+      color: var(--accent-dark);
+    }
+
+    .spider-char-btn.is-badmood .spider-mood-pill {
+      background: #ffe4e6;
+      border-color: #fb7185;
+      color: #be123c;
+    }
+
+    .spider-char-btn.is-kangen .spider-mood-pill {
+      background: #fce7f3;
+      border-color: #f472b6;
+      color: #be18d;
+    }
+
+    .spider-reaction-box {
+      margin-top: 12px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 12px 14px;
+      text-align: center;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.45;
+      animation: popIn 0.22s ease-out;
+    }
+
+    .spider-anim-ngomel {
+      animation: spiderNgomel 0.45s ease;
+    }
+
+    .spider-anim-kangen {
+      animation: spiderKangen 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes spiderNgomel {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      20% { transform: translateX(-6px) rotate(-5deg); }
+      40% { transform: translateX(6px) rotate(5deg); }
+      60% { transform: translateX(-4px) rotate(-3deg); }
+      80% { transform: translateX(4px) rotate(3deg); }
+    }
+
+    @keyframes spiderKangen {
+      0% { transform: translateY(0) scale(1); }
+      40% { transform: translateY(-8px) scale(1.06); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
     .love-calc-form {
       display: flex;
       flex-direction: column;
@@ -1466,6 +1569,64 @@
     </section>
 
     <section class="card">
+      <h2 class="section-title">Spider Mood Reaction</h2>
+      <p class="subtitle">Tap karakter sesuai mood-nya buat dengerin reaksinya ♡</p>
+
+      <div class="spider-mood-stage">
+        <!-- Tombol & Karakter Lyvia: Spider Girl Putih - Pink -->
+        <button type="button" class="spider-char-btn" id="spiderLyviaBtn" aria-label="Reaksi Mood Lyvia">
+          <svg id="spiderLyviaSvg" class="spider-avatar-svg" viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="40" cy="34" r="18" fill="#fff5f8" stroke="#f24b88" stroke-width="2.4" />
+            <path d="M40 16V52M22 34H58M27 21L53 47M53 21L27 47" stroke="#ffb3d1" stroke-width="1.2" opacity="0.85" />
+            <path id="lyviaEyeLeft" d="M26 31C30 28 36 30 37 35C32 36 27 34 26 31Z" fill="#ff5c97" stroke="#b81d56" stroke-width="1.6" />
+            <path id="lyviaEyeRight" d="M54 31C50 28 44 30 43 35C48 36 53 34 54 31Z" fill="#ff5c97" stroke="#b81d56" stroke-width="1.6" />
+            <path id="lyviaMouthPath" d="M35 41.5C37.5 44.5 42.5 44.5 45 41.5" stroke="#b81d56" stroke-width="2" stroke-linecap="round" />
+
+            <path d="M25 54H55L59 78H21L25 54Z" fill="#fff5f8" stroke="#f24b88" stroke-width="2.4" stroke-linejoin="round" />
+            <path d="M33 54H47L50 78H30L33 54Z" fill="#ff7aa8" />
+            <circle cx="40" cy="65" r="4.2" fill="#fff5f8" />
+            <path d="M36 62L32 59M36 65L31 65M36 68L32 71M44 62L48 59M44 65L49 65M44 68L48 71" stroke="#fff5f8" stroke-width="1.5" stroke-linecap="round" />
+
+            <path d="M25 58L14 52" stroke="#f24b88" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M55 58L66 52" stroke="#f24b88" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M32 78V89" stroke="#d83470" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M48 78V89" stroke="#d83470" stroke-width="3.2" stroke-linecap="round" />
+          </svg>
+          <span class="spider-char-name">Lyvia</span>
+          <span class="spider-mood-pill" id="spiderLyviaMoodBadge">✨ Memuat...</span>
+        </button>
+
+        <!-- Tombol & Karakter Fatur: Spiderman Hitam - Biru -->
+        <button type="button" class="spider-char-btn" id="spiderFaturBtn" aria-label="Reaksi Mood Fatur">
+          <svg id="spiderFaturSvg" class="spider-avatar-svg" viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="40" cy="34" r="18" fill="#111827" stroke="#2563eb" stroke-width="2.4" />
+            <path d="M40 16V52M22 34H58M27 21L53 47M53 21L27 47" stroke="#2563eb" stroke-width="1.2" opacity="0.85" />
+            <path id="faturEyeLeft" d="M25 31C29 27 36 29 37 35C32 36 27 34 25 31Z" fill="#38bdf8" stroke="#93c5fd" stroke-width="1.5" />
+            <path id="faturEyeRight" d="M55 31C51 27 44 29 43 35C48 36 53 34 55 31Z" fill="#38bdf8" stroke="#93c5fd" stroke-width="1.5" />
+            <path id="faturMouthPath" d="M35.5 41.5C38 44.5 42 44.5 44.5 41.5" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" />
+
+            <path d="M24 54H56L60 78H20L24 54Z" fill="#111827" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" />
+            <path d="M24 54L32 54L30 78H20L24 54Z" fill="#1d4ed8" />
+            <path d="M56 54L48 54L50 78H60L56 54Z" fill="#1d4ed8" />
+            <circle cx="40" cy="65" r="4.2" fill="#38bdf8" />
+            <path d="M36 62L31 58M36 65L30 65M36 68L31 72M44 62L49 58M44 65L50 65M44 68L49 72" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+
+            <path d="M24 58L13 51" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M56 58L67 51" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M32 78V89" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" />
+            <path d="M48 78V89" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round" />
+          </svg>
+          <span class="spider-char-name">Fatur</span>
+          <span class="spider-mood-pill" id="spiderFaturMoodBadge">✨ Memuat...</span>
+        </button>
+      </div>
+
+      <div class="spider-reaction-box" id="spiderReactionBox">
+        Klik Lyvia (Spider Girl) atau Fatur (Spiderman) buat dengerin reaksinya sesuai mood di Jurnal Mood ✨
+      </div>
+    </section>
+
+    <section class="card">
       <h2 class="section-title">Love Calculator</h2>
       <p class="subtitle">Cek kecocokan dua nama versi Flovly ♡</p>
 
@@ -2034,6 +2195,139 @@
       { passive: true }
     );
 
+    // --- Integrasi Spider Girl & Spiderman dengan Jurnal Mood ---
+    const spiderLyviaBtn = document.getElementById("spiderLyviaBtn");
+    const spiderFaturBtn = document.getElementById("spiderFaturBtn");
+    const spiderLyviaSvg = document.getElementById("spiderLyviaSvg");
+    const spiderFaturSvg = document.getElementById("spiderFaturSvg");
+    const spiderLyviaMoodBadge = document.getElementById("spiderLyviaMoodBadge");
+    const spiderFaturMoodBadge = document.getElementById("spiderFaturMoodBadge");
+    const spiderReactionBox = document.getElementById("spiderReactionBox");
+
+    const lyviaMouthPath = document.getElementById("lyviaMouthPath");
+    const faturMouthPath = document.getElementById("faturMouthPath");
+    const lyviaEyeLeft = document.getElementById("lyviaEyeLeft");
+    const lyviaEyeRight = document.getElementById("lyviaEyeRight");
+    const faturEyeLeft = document.getElementById("faturEyeLeft");
+    const faturEyeRight = document.getElementById("faturEyeRight");
+
+    const latestMoods = {
+      fatur: { mood: "🥰 Happy", note: "" },
+      lyvia: { mood: "🥰 Happy", note: "" }
+    };
+
+    const spiderLines = {
+      lyvia: {
+        badmood: [
+          "Ih sebel tau! Spider Girl lagi badmood, jangan ganggu dulu ya 😤🩷",
+          "Hmph! Mood Lyvia lagi jelek nih, awas kalau bikin tambah kesel 🕷️😤",
+          "Ngomel nih ya! Bujuk pakai jajan atau peluk dulu baru Spider Girl reda 😤"
+        ],
+        kangen: [
+          "Aku kangen banget sama kamu 🥺🩷",
+          "Kangen banget nih, kapan ketemu lagi? 🕸️💖",
+          "Spider Girl lagi kangen berat, cepetan kabarin ya 🥺✨"
+        ],
+        default: [
+          "Spider Girl putih-pink lagi siap nemenin kamu hari ini 🩷✨",
+          "Mood Lyvia aman terkendali, ayo main atau ngobrol lagi ♡",
+          "Wushh! Jaring pink meluncur buat kamu 🕸️🩷"
+        ]
+      },
+      fatur: {
+        badmood: [
+          "Hmph! Spiderman lagi badmood nih, lagi males diganggu dulu 😤💙",
+          "Mood Fatur lagi kurang oke, ngomel dikit ya biar lega 🕷️😤",
+          "Lagi badmood nih, tembak jaring dulu biar gak makin sebel 😤"
+        ],
+        kangen: [
+          "Aku kangen banget sama kamu 🥺💙",
+          "Spiderman kangen banget nih, pengin cepet ketemu 🕸️💖",
+          "Kangen banget loh, peluk jauh dulu buat kamu 🥺✨"
+        ],
+        default: [
+          "Spiderman hitam-biru siap ngejaga mood kamu hari ini 💙✨",
+          "Mood Fatur aman, ayo lanjut bikin hari makin seru ♡",
+          "Wushh! Jaring biru siap meluncur buat kamu 🕸️💙"
+        ]
+      }
+    };
+
+    function classifyMood(moodText = "") {
+      const lower = moodText.toLowerCase();
+      if (lower.includes("bad") || lower.includes("jelek") || lower.includes("ngambek")) {
+        return "badmood";
+      }
+      if (lower.includes("kangen")) {
+        return "kangen";
+      }
+      return "default";
+    }
+
+    function applySpiderVisualState(who, moodText) {
+      const kind = classifyMood(moodText);
+      const isLyvia = who === "lyvia";
+      const btnEl = isLyvia ? spiderLyviaBtn : spiderFaturBtn;
+      const badgeEl = isLyvia ? spiderLyviaMoodBadge : spiderFaturMoodBadge;
+      const mouthEl = isLyvia ? lyviaMouthPath : faturMouthPath;
+      const eyeL = isLyvia ? lyviaEyeLeft : faturEyeLeft;
+      const eyeR = isLyvia ? lyviaEyeRight : faturEyeRight;
+
+      badgeEl.textContent = moodText || "✨ Santai";
+      btnEl.classList.toggle("is-badmood", kind === "badmood");
+      btnEl.classList.toggle("is-kangen", kind === "kangen");
+
+      if (kind === "badmood") {
+        mouthEl.setAttribute("d", "M35.5 44C38 41.5 42 41.5 44.5 44");
+        eyeL.setAttribute("transform", "rotate(8 31 32)");
+        eyeR.setAttribute("transform", "rotate(-8 49 32)");
+      } else {
+        mouthEl.setAttribute("d", "M35 41.5C37.5 44.5 42.5 44.5 45 41.5");
+        eyeL.removeAttribute("transform");
+        eyeR.removeAttribute("transform");
+      }
+    }
+
+    function syncSpiderMoodsFromData(data) {
+      if (data && data.fatur && data.fatur.mood) {
+        latestMoods.fatur = { mood: data.fatur.mood, note: data.fatur.note || "" };
+      }
+      if (data && data.lyvia && data.lyvia.mood) {
+        latestMoods.lyvia = { mood: data.lyvia.mood, note: data.lyvia.note || "" };
+      }
+      applySpiderVisualState("lyvia", latestMoods.lyvia.mood);
+      applySpiderVisualState("fatur", latestMoods.fatur.mood);
+    }
+
+    function triggerSpiderReaction(who) {
+      const isLyvia = who === "lyvia";
+      const entry = latestMoods[who];
+      const kind = classifyMood(entry.mood);
+      const pool = spiderLines[who][kind] || spiderLines[who].default;
+      const chosenLine = pool[Math.floor(Math.random() * pool.length)];
+
+      const svgEl = isLyvia ? spiderLyviaSvg : spiderFaturSvg;
+      const animClass = kind === "badmood" ? "spider-anim-ngomel" : "spider-anim-kangen";
+
+      svgEl.classList.remove("spider-anim-ngomel", "spider-anim-kangen");
+      void svgEl.offsetWidth;
+      svgEl.classList.add(animClass);
+
+      spiderReactionBox.style.animation = "none";
+      void spiderReactionBox.offsetWidth;
+      spiderReactionBox.style.animation = "popIn 0.22s ease-out";
+
+      const whoLabel = isLyvia ? "Lyvia (Spider Girl)" : "Fatur (Spiderman)";
+      spiderReactionBox.textContent = `${whoLabel}: "${chosenLine}"`;
+
+      if (kind === "kangen") {
+        spawnFloatingHearts();
+      }
+    }
+
+    spiderLyviaBtn.addEventListener("click", () => triggerSpiderReaction("lyvia"));
+    spiderFaturBtn.addEventListener("click", () => triggerSpiderReaction("fatur"));
+
     // --- Jurnal Mood (Firebase) ---
     const moodWhoFatur = document.getElementById("moodWhoFatur");
     const moodWhoLyvia = document.getElementById("moodWhoLyvia");
@@ -2098,15 +2392,23 @@
         const data = await res.json();
         renderMoodCard(data && data.fatur, faturMoodDisplay, faturMoodNote, faturMoodTime);
         renderMoodCard(data && data.lyvia, lyviaMoodDisplay, lyviaMoodNote, lyviaMoodTime);
+        syncSpiderMoodsFromData(data);
       } catch (err) {
         faturMoodDisplay.textContent = "Gagal memuat";
         lyviaMoodDisplay.textContent = "Gagal memuat";
+        syncSpiderMoodsFromData(null);
       }
     }
 
     moodForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const note = moodNoteInput.value.trim();
+
+      latestMoods[selectedMoodOwner] = {
+        mood: selectedMoodLabel,
+        note
+      };
+      applySpiderVisualState(selectedMoodOwner, selectedMoodLabel);
 
       moodSubmitBtn.disabled = true;
       moodStatusText.textContent = "Menyimpan mood...";
