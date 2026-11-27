@@ -59,7 +59,62 @@
       transition: background 0.6s ease, color 0.6s ease;
     }
 
+    /* --- Efek Bintang Jatuh Halus dari Bawah ke Atas (Mode Malam) --- */
+    .night-stars-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      display: none;
+    }
+
+    body.night-mode .night-stars-layer {
+      display: block;
+    }
+
+    .rising-star {
+      position: absolute;
+      bottom: -24px;
+      color: #ffb3d1;
+      opacity: 0;
+      user-select: none;
+      filter: drop-shadow(0 0 6px rgba(255, 143, 184, 0.65));
+      animation: riseStarUp linear forwards;
+    }
+
+    .rising-star::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 26px;
+      background: linear-gradient(180deg, rgba(255, 179, 209, 0.65), rgba(255, 179, 209, 0));
+      border-radius: 999px;
+    }
+
+    @keyframes riseStarUp {
+      0% {
+        opacity: 0;
+        transform: translate3d(0, 0, 0) scale(0.75) rotate(0deg);
+      }
+      15% {
+        opacity: 0.9;
+      }
+      80% {
+        opacity: 0.75;
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(var(--drift-x, 18px), -112vh, 0) scale(1.15) rotate(25deg);
+      }
+    }
+
     .container {
+      position: relative;
+      z-index: 2;
       max-width: 480px;
       margin: 0 auto;
       display: flex;
@@ -1172,6 +1227,8 @@
     }
 
     footer {
+      position: relative;
+      z-index: 2;
       text-align: center;
       color: var(--text-muted);
       font-size: 0.86rem;
@@ -1196,6 +1253,8 @@
   </style>
 </head>
 <body>
+  <div class="night-stars-layer" id="nightStarsLayer" aria-hidden="true"></div>
+
   <main class="container">
     <section class="card">
       <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Ganti Tema Pagi atau Malam">
@@ -1532,6 +1591,53 @@
   </div>
 
   <script>
+    // --- Efek Bintang Jatuh dari Bawah ke Atas (Aktif saat Mode Malam) ---
+    const nightStarsLayer = document.getElementById("nightStarsLayer");
+    const starGlyphs = ["✦", "✧", "⋆", "✨"];
+    let risingStarInterval = null;
+
+    function spawnRisingStar() {
+      if (!nightStarsLayer || !document.body.classList.contains("night-mode")) return;
+
+      const star = document.createElement("span");
+      star.className = "rising-star";
+      star.textContent = starGlyphs[Math.floor(Math.random() * starGlyphs.length)];
+
+      const leftPos = 4 + Math.random() * 92;
+      const duration = 4.2 + Math.random() * 3.4;
+      const fontSize = 11 + Math.random() * 9;
+      const driftX = (Math.random() - 0.5) * 60;
+
+      star.style.left = `${leftPos}vw`;
+      star.style.fontSize = `${fontSize}px`;
+      star.style.setProperty("--drift-x", `${driftX}px`);
+      star.style.animationDuration = `${duration}s`;
+
+      nightStarsLayer.appendChild(star);
+
+      setTimeout(() => {
+        star.remove();
+      }, (duration + 0.3) * 1000);
+    }
+
+    function startRisingStars() {
+      if (risingStarInterval) return;
+      spawnRisingStar();
+      setTimeout(spawnRisingStar, 450);
+      setTimeout(spawnRisingStar, 950);
+      risingStarInterval = setInterval(spawnRisingStar, 1100);
+    }
+
+    function stopRisingStars() {
+      if (risingStarInterval) {
+        clearInterval(risingStarInterval);
+        risingStarInterval = null;
+      }
+      if (nightStarsLayer) {
+        nightStarsLayer.innerHTML = "";
+      }
+    }
+
     // --- Auto Day/Night Theme (18:00 - 05:59 Pink Kehitaman, 06:00 - 17:59 Pink Terang) ---
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     let manualThemeOverride = null;
@@ -1539,6 +1645,11 @@
     function applyTheme(isNight) {
       document.body.classList.toggle("night-mode", isNight);
       themeToggleBtn.textContent = isNight ? "🌙 Malam" : "☀️ Pagi";
+      if (isNight) {
+        startRisingStars();
+      } else {
+        stopRisingStars();
+      }
     }
 
     function checkAutoTheme() {
