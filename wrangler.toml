@@ -1,3 +1,7 @@
 name = "lyvia-curhat-api"
 main = "worker.js"
 compatibility_date = "2026-11-28"
+
+[assets]
+directory = "."
+not_found_handling = "none"
