@@ -82,10 +82,16 @@
       background: rgba(255, 255, 255, 0.3);
     }
 
-    .key-box {
+    .key-section {
       padding: 10px 16px;
       background: #fff9fb;
       border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .key-box {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -110,6 +116,13 @@
 
     .key-box input:focus {
       border-color: var(--primary);
+    }
+
+    .key-clue {
+      font-size: 0.74rem;
+      color: var(--muted);
+      font-style: italic;
+      padding-left: 2px;
     }
 
     .messages {
@@ -219,14 +232,17 @@
       <button class="reset-btn" id="resetBtn" type="button">Chat Baru</button>
     </div>
 
-    <div class="key-box">
-      <label for="keywordInput">Kata Kunci</label>
-      <input
-        type="password"
-        id="keywordInput"
-        placeholder="Masukkan kata kunci rahasia..."
-        autocomplete="off"
-      />
+    <div class="key-section">
+      <div class="key-box">
+        <label for="keywordInput">Kata Kunci</label>
+        <input
+          type="password"
+          id="keywordInput"
+          placeholder="Masukkan kata kunci rahasia..."
+          autocomplete="off"
+        />
+      </div>
+      <div class="key-clue">Clue: club bola aku apa ya cayang? itu sandi nyaa</div>
     </div>
 
     <div class="messages" id="messages">
