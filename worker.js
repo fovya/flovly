@@ -5,11 +5,7 @@ const CORS_HEADERS = {
   "Access-Control-Max-Age": "86400"
 };
 
-const MODELS_TO_TRY = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-3.8-flash"
-];
+const MODEL_NAME = "gemini-3.8-flash";
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -56,9 +52,13 @@ function extractReplyText(geminiData) {
     .trim();
 }
 
-async function callGeminiModel(modelName, apiKey, payload) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callGeminiOnce(apiKey, payload) {
   const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    modelName
+    MODEL_NAME
   )}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   const res = await fetch(geminiUrl, {
@@ -67,7 +67,7 @@ async function callGeminiModel(modelName, apiKey, payload) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(10000)
+    signal: AbortSignal.timeout(12000)
   });
 
   const data = await res.json().catch(() => ({}));
@@ -165,46 +165,50 @@ export default {
       }
     };
 
+    const maxAttempts = 2;
     let lastErrorMessage = "Gagal memanggil Gemini API.";
     let lastStatus = 502;
 
-    for (const modelName of MODELS_TO_TRY) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const { res, data } = await callGeminiModel(modelName, apiKey, payload);
+        const { res, data } = await callGeminiOnce(apiKey, payload);
 
         if (res.ok) {
           const replyText = extractReplyText(data);
           if (replyText) {
             return jsonResponse({ reply: replyText });
           }
-          lastErrorMessage = `Balasan kosong diterima dari ${modelName}.`;
+          lastErrorMessage = "Balasan kosong diterima dari Gemini.";
           lastStatus = 502;
-          continue;
-        }
+        } else {
+          const apiErrorMessage =
+            data?.error?.message || `Gagal memanggil Gemini API (HTTP ${res.status}).`;
+          lastErrorMessage = apiErrorMessage;
+          lastStatus = res.status;
 
-        const apiErrorMessage =
-          data?.error?.message || `Gagal memanggil ${modelName} (HTTP ${res.status}).`;
-        lastErrorMessage = apiErrorMessage;
-        lastStatus = res.status;
+          const isTempSpike =
+            res.status === 429 ||
+            res.status === 503 ||
+            res.status === 504 ||
+            /high demand|unavailable|overloaded/i.test(apiErrorMessage);
 
-        const isRetryable =
-          res.status === 429 ||
-          res.status === 500 ||
-          res.status === 502 ||
-          res.status === 503 ||
-          res.status === 504 ||
-          /high demand|unavailable|overloaded|not found|not supported/i.test(apiErrorMessage);
-
-        if (!isRetryable) {
-          return jsonResponse({ error: apiErrorMessage }, res.status);
+          if (!isTempSpike || attempt === maxAttempts) {
+            return jsonResponse({ error: apiErrorMessage }, res.status);
+          }
         }
       } catch (err) {
         lastErrorMessage =
           err?.name === "TimeoutError"
-            ? `Waktu tunggu ${modelName} habis.`
+            ? "Waktu tunggu respons Gemini habis."
             : "Gagal terhubung ke Gemini API: " + (err?.message || String(err));
         lastStatus = 504;
+
+        if (attempt === maxAttempts) {
+          return jsonResponse({ error: lastErrorMessage }, lastStatus);
+        }
       }
+
+      await sleep(800);
     }
 
     return jsonResponse({ error: lastErrorMessage }, lastStatus);
