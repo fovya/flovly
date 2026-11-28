@@ -5,6 +5,12 @@ const CORS_HEADERS = {
   "Access-Control-Max-Age": "86400"
 };
 
+const MODELS_TO_TRY = [
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-3.8-flash"
+];
+
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -40,6 +46,32 @@ function normalizeHistory(rawHistory) {
       role: item.role,
       parts: [{ text: item.text.trim() }]
     }));
+}
+
+function extractReplyText(geminiData) {
+  const replyParts = geminiData?.candidates?.[0]?.content?.parts || [];
+  return replyParts
+    .map((part) => (typeof part.text === "string" ? part.text : ""))
+    .join("")
+    .trim();
+}
+
+async function callGeminiModel(modelName, apiKey, payload) {
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+    modelName
+  )}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(geminiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(10000)
+  });
+
+  const data = await res.json().catch(() => ({}));
+  return { res, data };
 }
 
 export default {
@@ -122,55 +154,59 @@ export default {
       }
     ];
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(
-      apiKey
-    )}`;
+    const payload = {
+      systemInstruction: {
+        parts: [{ text: buildSystemInstruction() }]
+      },
+      contents,
+      generationConfig: {
+        temperature: 0.8,
+        maxOutputTokens: 600
+      }
+    };
 
-    try {
-      const geminiRes = await fetch(geminiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: buildSystemInstruction() }]
-          },
-          contents,
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 600
+    let lastErrorMessage = "Gagal memanggil Gemini API.";
+    let lastStatus = 502;
+
+    for (const modelName of MODELS_TO_TRY) {
+      try {
+        const { res, data } = await callGeminiModel(modelName, apiKey, payload);
+
+        if (res.ok) {
+          const replyText = extractReplyText(data);
+          if (replyText) {
+            return jsonResponse({ reply: replyText });
           }
-        })
-      });
+          lastErrorMessage = `Balasan kosong diterima dari ${modelName}.`;
+          lastStatus = 502;
+          continue;
+        }
 
-      const geminiData = await geminiRes.json();
-
-      if (!geminiRes.ok) {
         const apiErrorMessage =
-          geminiData?.error?.message || `Gagal memanggil Gemini API (HTTP ${geminiRes.status}).`;
-        return jsonResponse({ error: apiErrorMessage }, geminiRes.status);
+          data?.error?.message || `Gagal memanggil ${modelName} (HTTP ${res.status}).`;
+        lastErrorMessage = apiErrorMessage;
+        lastStatus = res.status;
+
+        const isRetryable =
+          res.status === 429 ||
+          res.status === 500 ||
+          res.status === 502 ||
+          res.status === 503 ||
+          res.status === 504 ||
+          /high demand|unavailable|overloaded|not found|not supported/i.test(apiErrorMessage);
+
+        if (!isRetryable) {
+          return jsonResponse({ error: apiErrorMessage }, res.status);
+        }
+      } catch (err) {
+        lastErrorMessage =
+          err?.name === "TimeoutError"
+            ? `Waktu tunggu ${modelName} habis.`
+            : "Gagal terhubung ke Gemini API: " + (err?.message || String(err));
+        lastStatus = 504;
       }
-
-      const replyParts = geminiData?.candidates?.[0]?.content?.parts || [];
-      const replyText = replyParts
-        .map((part) => (typeof part.text === "string" ? part.text : ""))
-        .join("")
-        .trim();
-
-      if (!replyText) {
-        return jsonResponse(
-          { error: "Balasan kosong diterima dari Gemini." },
-          502
-        );
-      }
-
-      return jsonResponse({ reply: replyText });
-    } catch (err) {
-      return jsonResponse(
-        { error: "Gagal terhubung ke Gemini API: " + (err?.message || String(err)) },
-        502
-      );
     }
+
+    return jsonResponse({ error: lastErrorMessage }, lastStatus);
   }
 };
