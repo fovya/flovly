@@ -1,191 +1,135 @@
-const ALLOWED_ORIGINS = [
-  "https://fovya.github.io",
-  "http://localhost:3000",
-  "http://127.0.0.1:5500"
-];
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
-const MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-2.0-flash"
-];
-
-const SYSTEM_INSTRUCTION = `
-Kamu adalah teman curhat yang hangat, empatik, suportif, dan aman untuk Lyvia.
-Jawablah dengan bahasa Indonesia yang natural, lembut, dan tidak menghakimi.
-Dengarkan perasaannya dulu sebelum memberi saran, dan jangan terlalu panjang kecuali diminta.
-`.trim();
-
-function getCorsHeaders(origin) {
-  const allowedOrigin =
-    origin && ALLOWED_ORIGINS.includes(origin)
-      ? origin
-      : "https://fovya.github.io";
-
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Max-Age": "86400"
-  };
-}
-
-function jsonResponse(payload, status = 200, origin = "") {
-  return new Response(JSON.stringify(payload), {
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      ...getCorsHeaders(origin)
-    }
-  });
-}
-
-function buildContents(history, message) {
-  const contents = [];
-
-  if (Array.isArray(history)) {
-    for (const item of history.slice(-16)) {
-      if (!item || typeof item.text !== "string") continue;
-      const cleanText = item.text.trim();
-      if (!cleanText) continue;
-
-      const role = item.role === "model" || item.role === "assistant" ? "model" : "user";
-      contents.push({
-        role,
-        parts: [{ text: cleanText }]
-      });
-    }
-  }
-
-  contents.push({
-    role: "user",
-    parts: [{ text: message.trim() }]
-  });
-
-  return contents;
-}
-
-async function callGeminiModel(model, apiKey, contents) {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+      ...CORS_HEADERS,
     },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: SYSTEM_INSTRUCTION }]
-      },
-      contents,
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 800
-      }
-    })
   });
-
-  const rawText = await response.text();
-  let data = null;
-
-  try {
-    data = JSON.parse(rawText);
-  } catch (_) {
-    data = null;
-  }
-
-  return { ok: response.ok, status: response.status, data, rawText };
 }
 
 export default {
   async fetch(request, env) {
-    const origin = request.headers.get("Origin") || "";
-
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
-        headers: getCorsHeaders(origin)
+        headers: CORS_HEADERS,
+      });
+    }
+
+    if (request.method === "GET") {
+      return jsonResponse({
+        ok: true,
+        service: "lyvia-curhat-api",
+        status: "ready",
       });
     }
 
     if (request.method !== "POST") {
-      return jsonResponse({ error: "Metode tidak diizinkan." }, 405, origin);
+      return jsonResponse({ error: "Method tidak diizinkan." }, 405);
     }
 
-    const apiKey = env.GEMINI_API_KEY;
-    const expectedKeyword = (env.SECRET_KEYWORD || "manchester united").trim().toLowerCase();
-
-    if (!apiKey) {
-      return jsonResponse(
-        { error: "GEMINI_API_KEY belum diatur di Cloudflare Worker." },
-        500,
-        origin
-      );
-    }
-
-    let body;
     try {
-      body = await request.json();
-    } catch (_) {
-      return jsonResponse({ error: "Format permintaan tidak valid." }, 400, origin);
-    }
+      const body = await request.json().catch(() => ({}));
+      const keyword = String(body.keyword || body.secretKeyword || "").trim();
+      const message = String(body.message || body.prompt || body.text || "").trim();
+      const history = Array.isArray(body.history) ? body.history : [];
 
-    const providedKeyword = typeof body.keyword === "string" ? body.keyword.trim().toLowerCase() : "";
-    const message = typeof body.message === "string" ? body.message.trim() : "";
-    const history = Array.isArray(body.history) ? body.history : [];
+      const expectedKeyword = String(env.SECRET_KEYWORD || "").trim();
+      if (!expectedKeyword) {
+        return jsonResponse(
+          { error: "SECRET_KEYWORD belum diatur di Cloudflare Worker." },
+          500
+        );
+      }
 
-    if (!providedKeyword || providedKeyword !== expectedKeyword) {
+      if (!keyword || keyword.toLowerCase() !== expectedKeyword.toLowerCase()) {
+        return jsonResponse({ error: "Kata kunci salah." }, 401);
+      }
+
+      if (!message) {
+        return jsonResponse({ error: "Pesan curhat tidak boleh kosong." }, 400);
+      }
+
+      const apiKey = String(env.GEMINI_API_KEY || "").trim();
+      if (!apiKey) {
+        return jsonResponse(
+          { error: "GEMINI_API_KEY belum diatur di Cloudflare Worker." },
+          500
+        );
+      }
+
+      const contents = [];
+
+      for (const item of history.slice(-10)) {
+        const role = item && item.role === "model" ? "model" : "user";
+        const text = String(item?.parts?.[0]?.text ?? item?.text ?? item?.content ?? "").trim();
+        if (text) {
+          contents.push({
+            role,
+            parts: [{ text }],
+          });
+        }
+      }
+
+      contents.push({
+        role: "user",
+        parts: [{ text: message }],
+      });
+
+      const systemInstruction = {
+        parts: [
+          {
+            text: "Kamu adalah teman curhat yang hangat, empatik, lembut, dan suportif untuk Lyvia. Jawab dalam bahasa Indonesia yang natural, menenangkan, dan tidak menggurui.",
+          },
+        ],
+      };
+
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(
+        apiKey
+      )}`;
+
+      const geminiRes = await fetch(geminiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          systemInstruction,
+          contents,
+        }),
+      });
+
+      const geminiData = await geminiRes.json().catch(() => ({}));
+
+      if (!geminiRes.ok) {
+        const apiErrorMsg =
+          geminiData?.error?.message || `Gemini API error (${geminiRes.status})`;
+        return jsonResponse({ error: apiErrorMsg }, geminiRes.status);
+      }
+
+      const reply =
+        geminiData?.candidates?.[0]?.content?.parts
+          ?.map((part) => part?.text || "")
+          .join("")
+          .trim() || "Maaf, aku belum bisa merespons sekarang. Coba ulangi ya.";
+
+      return jsonResponse({
+        reply,
+        text: reply,
+        message: reply,
+      });
+    } catch (err) {
       return jsonResponse(
-        { error: "Kata kunci rahasia salah atau belum diisi." },
-        401,
-        origin
+        { error: err?.message || "Terjadi kesalahan pada server Worker." },
+        500
       );
     }
-
-    if (!message) {
-      return jsonResponse({ error: "Pesan tidak boleh kosong." }, 400, origin);
-    }
-
-    const contents = buildContents(history, message);
-    let lastErrorMessage = "Model sedang sibuk, coba beberapa saat lagi ya.";
-
-    for (const model of MODELS) {
-      try {
-        const result = await callGeminiModel(model, apiKey, contents);
-
-        if (result.ok && result.data) {
-          const reply =
-            result.data?.candidates?.[0]?.content?.parts
-              ?.map((p) => p.text || "")
-              .join("")
-              .trim() || "";
-
-          if (reply) {
-            return jsonResponse({ reply, model }, 200, origin);
-          }
-        }
-
-        const apiErrMsg =
-          result.data?.error?.message ||
-          `Gagal memanggil ${model} (status ${result.status})`;
-        lastErrorMessage = apiErrMsg;
-
-        const isTemporaryOrModelIssue =
-          result.status === 429 ||
-          result.status === 503 ||
-          result.status === 500 ||
-          result.status === 404 ||
-          /high demand|overloaded|quota|not found|unsupported/i.test(apiErrMsg);
-
-        if (!isTemporaryOrModelIssue) {
-          break;
-        }
-      } catch (err) {
-        lastErrorMessage = `Gangguan jaringan ke Gemini: ${err.message || "unknown error"}`;
-      }
-    }
-
-    return jsonResponse({ error: lastErrorMessage }, 503, origin);
-  }
+  },
 };
-// trigger build for worker deployment v2
