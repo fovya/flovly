@@ -5,7 +5,7 @@ const CORS_HEADERS = {
   "Access-Control-Max-Age": "86400"
 };
 
-const MODEL_NAME = "gemini-3.8-flash";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -20,7 +20,7 @@ function jsonResponse(data, status = 200) {
 function buildSystemInstruction() {
   return [
     "Kamu adalah teman curhat AI yang hangat, empatik, penuh perhatian, dan suportif untuk Lyvia.",
-    "Jawab dalam bahasa Indonesia yang natural, lembut, dan tidak menggurui.",
+    "Jawab dalam bahasa Indonesia yang natural, lembut, hangat, dan tidak menggurui.",
     "Dengarkan perasaannya dulu, validasi emosinya dengan tulus, lalu beri dukungan atau saran ringan secara ringkas.",
     "Jangan menyebut diri kamu model bahasa atau AI teknis kecuali ditanya langsung."
   ].join(" ");
@@ -30,7 +30,7 @@ function normalizeHistory(rawHistory) {
   if (!Array.isArray(rawHistory)) return [];
 
   return rawHistory
-    .slice(-8)
+    .slice(-12)
     .filter(
       (item) =>
         item &&
@@ -39,71 +39,40 @@ function normalizeHistory(rawHistory) {
         item.text.trim().length > 0
     )
     .map((item) => ({
-      role: item.role,
-      parts: [{ text: item.text.trim() }]
+      role: item.role === "model" ? "assistant" : "user",
+      content: item.text.trim()
     }));
-}
-
-function extractReplyText(geminiData) {
-  const replyParts = geminiData?.candidates?.[0]?.content?.parts || [];
-  return replyParts
-    .map((part) => (typeof part.text === "string" ? part.text : ""))
-    .join("")
-    .trim();
 }
 
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          "Access-Control-Max-Age": "86400"
-        }
-      });
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
     if (request.method === "GET") {
-      return jsonResponse({
-        ok: true,
-        service: "lyvia-curhat-api"
-      });
+      return jsonResponse({ ok: true, service: "lyvia-curhat-api", engine: "groq" });
     }
 
     if (request.method !== "POST") {
-      return jsonResponse(
-        { error: "Method tidak diizinkan. Gunakan POST." },
-        405
-      );
+      return jsonResponse({ error: "Method tidak diizinkan. Gunakan POST." }, 405);
     }
 
     const expectedKeyword = (env.SECRET_KEYWORD || "").trim();
     if (!expectedKeyword) {
-      return jsonResponse(
-        { error: "SECRET_KEYWORD belum diatur di Cloudflare Worker." },
-        500
-      );
+      return jsonResponse({ error: "SECRET_KEYWORD belum diatur di Cloudflare Worker." }, 500);
     }
 
-    const apiKey = (env.GEMINI_API_KEY || "").trim();
-    if (!apiKey) {
-      return jsonResponse(
-        { error: "GEMINI_API_KEY belum diatur di Cloudflare Worker." },
-        500
-      );
+    const groqKey = (env.GROQ_API_KEY || "").trim();
+    if (!groqKey) {
+      return jsonResponse({ error: "GROQ_API_KEY belum diatur di Cloudflare Worker." }, 500);
     }
 
     let body;
     try {
       body = await request.json();
     } catch (_) {
-      return jsonResponse(
-        { error: "Format request harus JSON yang valid." },
-        400
-      );
+      return jsonResponse({ error: "Format request harus JSON yang valid." }, 400);
     }
 
     const providedKeyword = typeof body.keyword === "string" ? body.keyword.trim() : "";
@@ -111,82 +80,57 @@ export default {
     const history = normalizeHistory(body.history);
 
     if (!providedKeyword || providedKeyword !== expectedKeyword) {
-      return jsonResponse(
-        { error: "Kata kunci salah. Coba periksa lagi ya." },
-        401
-      );
+      return jsonResponse({ error: "Kata kunci salah. Coba periksa lagi ya." }, 401);
     }
 
     if (!message) {
-      return jsonResponse(
-        { error: "Pesan curhat tidak boleh kosong." },
-        400
-      );
+      return jsonResponse({ error: "Pesan curhat tidak boleh kosong." }, 400);
     }
 
-    const contents = [
+    const messages = [
+      { role: "system", content: buildSystemInstruction() },
       ...history,
-      {
-        role: "user",
-        parts: [{ text: message }]
-      }
+      { role: "user", content: message }
     ];
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-      MODEL_NAME
-    )}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
     try {
-      const geminiRes = await fetch(geminiUrl, {
+      const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${groqKey}`
         },
         body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: buildSystemInstruction() }]
-          },
-          contents,
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 350
-          }
+          model: GROQ_MODEL,
+          messages,
+          temperature: 0.8,
+          max_tokens: 450
         }),
-        signal: AbortSignal.timeout(7000)
+        signal: AbortSignal.timeout(8000)
       });
 
-      const geminiData = await geminiRes.json().catch(() => ({}));
+      const groqData = await groqRes.json().catch(() => ({}));
 
-      if (!geminiRes.ok) {
-        const apiErrorMessage =
-          geminiData?.error?.message || `Gagal memanggil Gemini API (HTTP ${geminiRes.status}).`;
-        return jsonResponse({ error: apiErrorMessage }, geminiRes.status);
+      if (!groqRes.ok) {
+        const apiError =
+          groqData?.error?.message || `Gagal memanggil Groq API (HTTP ${groqRes.status}).`;
+        return jsonResponse({ error: apiError }, groqRes.status);
       }
 
-      const replyText = extractReplyText(dataOrFallback(geminiData));
+      const replyText = groqData?.choices?.[0]?.message?.content?.trim();
       if (!replyText) {
-        return jsonResponse(
-          { error: "Balasan kosong diterima dari Gemini." },
-          502
-        );
+        return jsonResponse({ error: "Balasan kosong diterima dari AI." }, 502);
       }
 
       return jsonResponse({ reply: replyText });
     } catch (err) {
       if (err?.name === "TimeoutError") {
-        return jsonResponse(
-          { error: "Server AI sedang lambat merespons. Coba kirim lagi sebentar ya." },
-          504
-        );
+        return jsonResponse({ error: "Waktu tunggu habis, coba kirim ulang sebentar ya." }, 504);
       }
       return jsonResponse(
-        { error: "Gagal terhubung ke Gemini API: " + (err?.message || String(err)) },
+        { error: "Gagal terhubung ke server AI: " + (err?.message || String(err)) },
         502
       );
     }
   }
 };
-
-function dataOrFallback(geminiData) {
-  return geminiData && typeof geminiData === "object" ? geminiData : {};
-}
