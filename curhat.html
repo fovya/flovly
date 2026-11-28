@@ -323,10 +323,16 @@
           })
         });
 
-        const data = await res.json();
+        const rawText = await res.text();
+        let data = null;
+        try {
+          data = JSON.parse(rawText);
+        } catch (_) {
+          throw new Error(`Respons bukan JSON (HTTP ${res.status}): ${rawText.slice(0, 120)}`);
+        }
 
         if (!res.ok) {
-          addBubble(data.error || "Gagal mendapatkan balasan.", "error");
+          addBubble(data.error || `Gagal mendapatkan balasan (HTTP ${res.status}).`, "error");
           return;
         }
 
@@ -336,7 +342,7 @@
         history.push({ role: "user", text: message });
         history.push({ role: "model", text: reply });
       } catch (err) {
-        addBubble("Koneksi bermasalah. Coba cek jaringan lalu kirim lagi.", "error");
+        addBubble("Error: " + (err && err.message ? err.message : String(err)), "error");
       } finally {
         sendBtn.disabled = false;
         typingEl.textContent = "";
