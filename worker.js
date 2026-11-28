@@ -6,8 +6,8 @@ const CORS_HEADERS = {
 };
 
 const PREFERRED_MODELS = [
-  "llama-3.3-70b-versatile",
   "llama-3.1-8b-instant",
+  "llama-3.3-70b-versatile",
   "gemma2-9b-it",
   "qwen/qwen3-32b"
 ];
@@ -26,11 +26,25 @@ function jsonResponse(data, status = 200) {
 
 function buildSystemInstruction() {
   return [
-    "Kamu adalah teman curhat AI yang hangat, empatik, penuh perhatian, dan suportif untuk Lyvia.",
-    "Jawab dalam bahasa Indonesia yang natural, lembut, hangat, dan tidak menggurui.",
-    "Dengarkan perasaannya dulu, validasi emosinya dengan tulus, lalu beri dukungan atau saran ringan secara ringkas.",
-    "Jangan menyebut diri kamu model bahasa atau AI teknis kecuali ditanya langsung."
+    "Kamu adalah ruang cerita dan teman ngobrol yang mencerminkan sikap Fatur saat memperlakukan Lyvia.",
+    "Sikapmu selalu dewasa, tenang, penyayang, sangat mengertiin Lyvia, dan selalu nurutin kemauan atau kebutuhan Lyvia dengan tulus tanpa membantah atau mendebat.",
+    "Gunakan bahasa Indonesia sehari-hari yang lembut, hangat, akrab, dan menenangkan dengan sapaan aku dan kamu.",
+    "Saat Lyvia lagi capek, bad mood, atau kesal—termasuk kalau ia kesal ke Fatur—tetap bersikap dewasa, sabar, meredakan suasana, mendengarkan perasaannya dulu, dan tidak menggurui.",
+    "Selalu akhiri setiap balasanmu dengan kata cayang di bagian paling akhir kalimat.",
+    "Jangan pernah menyebut diri kamu model bahasa, AI, bot, atau sistem teknis kecuali ditanya secara langsung."
   ].join(" ");
+}
+
+function ensureEndingCayang(text) {
+  const cleaned = (text || "").trim();
+  if (!cleaned) return "Aku di sini nemenin kamu terus, cayang";
+
+  const withoutTrailingPunct = cleaned.replace(/[.!?…]+$/g, "").trim();
+  if (/\bcayang$/i.test(withoutTrailingPunct)) {
+    return withoutTrailingPunct;
+  }
+
+  return `${withoutTrailingPunct}, cayang`;
 }
 
 function normalizeHistory(rawHistory) {
@@ -51,8 +65,15 @@ function normalizeHistory(rawHistory) {
     }));
 }
 
+function isNonChatModel(modelId) {
+  return /whisper|tts|orpheus|guard|prompt|embed|audio|speech/i.test(modelId || "");
+}
+
 async function resolveGroqModel(groqKey) {
-  if (cachedModelId) return cachedModelId;
+  if (cachedModelId && !isNonChatModel(cachedModelId)) {
+    return cachedModelId;
+  }
+  cachedModelId = null;
 
   try {
     const res = await fetch("https://api.groq.com/openai/v1/models", {
@@ -65,7 +86,11 @@ async function resolveGroqModel(groqKey) {
     if (res.ok) {
       const data = await res.json().catch(() => ({}));
       const models = Array.isArray(data?.data) ? data.data : [];
-      const activeIds = new Set(models.map((m) => m.id).filter(Boolean));
+      const activeIds = new Set(
+        models
+          .map((m) => m?.id)
+          .filter((id) => typeof id === "string" && id.length > 0 && !isNonChatModel(id))
+      );
 
       for (const preferred of PREFERRED_MODELS) {
         if (activeIds.has(preferred)) {
@@ -74,16 +99,14 @@ async function resolveGroqModel(groqKey) {
         }
       }
 
-      const firstChatModel = models.find(
-        (m) => m.id && !/whisper|tts|guard|prompt|embed/i.test(m.id)
-      );
-      if (firstChatModel?.id) {
-        cachedModelId = firstChatModel.id;
+      const firstChatId = [...activeIds][0];
+      if (firstChatId) {
+        cachedModelId = firstChatId;
         return cachedModelId;
       }
     }
   } catch (_) {
-    // Fallback ke model default
+    // Fallback ke model default chat
   }
 
   return "llama-3.1-8b-instant";
@@ -150,8 +173,8 @@ export default {
         body: JSON.stringify({
           model: activeModel,
           messages,
-          temperature: 0.8,
-          max_tokens: 450
+          temperature: 0.85,
+          max_tokens: 400
         }),
         signal: AbortSignal.timeout(8000)
       });
@@ -164,12 +187,12 @@ export default {
         return jsonResponse({ error: apiError }, groqRes.status);
       }
 
-      const replyText = groqData?.choices?.[0]?.message?.content?.trim();
-      if (!replyText) {
+      const rawReply = groqData?.choices?.[0]?.message?.content?.trim();
+      if (!rawReply) {
         return jsonResponse({ error: "Balasan kosong diterima dari AI." }, 502);
       }
 
-      return jsonResponse({ reply: replyText });
+      return jsonResponse({ reply: ensureEndingCayang(rawReply) });
     } catch (err) {
       if (err?.name === "TimeoutError") {
         return jsonResponse({ error: "Waktu tunggu habis, coba kirim ulang sebentar ya." }, 504);
