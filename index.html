@@ -1246,34 +1246,73 @@
       padding: 12px 6px;
     }
 
+    /* --- Tombol Close Bubble & Drag Support untuk Widget Mengambang --- */
+    .bubble-close-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .bubble-close-btn:hover {
+      background: var(--hover-soft);
+    }
+
+    .is-bubble-hidden {
+      display: none !important;
+    }
+
+    .is-dragging-dock {
+      z-index: 970 !important;
+      transition: none !important;
+    }
+
     /* --- Floating Chibi Fatur Curhat AI (Kiri Bawah: Baju Hitam & Celana Krem) --- */
     .fatur-curhat-dock {
       position: fixed;
-      left: 14px;
-      bottom: 16px;
+      left: 12px;
+      bottom: 14px;
       z-index: 950;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 7px;
-      max-width: min(210px, calc(50vw - 20px));
-      cursor: pointer;
+      gap: 6px;
+      max-width: min(195px, calc(50vw - 18px));
+      cursor: grab;
       user-select: none;
+      touch-action: none;
       -webkit-tap-highlight-color: transparent;
-      animation: chibiCurhatFloat 3.3s ease-in-out infinite;
+    }
+
+    .fatur-curhat-dock:active {
+      cursor: grabbing;
     }
 
     .fatur-curhat-bubble {
+      position: relative;
       background: var(--card-bg);
       border: 1.5px solid var(--accent);
       color: var(--text-main);
       border-radius: 16px 16px 16px 4px;
-      padding: 9px 11px;
-      font-size: 0.74rem;
+      padding: 9px 24px 9px 10px;
+      font-size: 0.72rem;
       line-height: 1.35;
       font-weight: 600;
       box-shadow: 0 10px 24px rgba(242, 75, 136, 0.22);
-      transition: background-color 0.4s ease, color 0.4s ease, transform 0.18s ease;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
     .fatur-curhat-btn {
@@ -1311,43 +1350,45 @@
       letter-spacing: 0.03em;
     }
 
-    @keyframes chibiCurhatFloat {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-4px); }
-    }
-
     /* --- Floating Mini Lyvia FYI (Jas Putih + Kacamata) --- */
     .fyi-floating-dock {
       position: fixed;
-      right: 14px;
-      bottom: 16px;
+      right: 12px;
+      bottom: 14px;
       z-index: 950;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 8px;
-      max-width: min(215px, calc(50vw - 20px));
+      gap: 7px;
+      max-width: min(205px, calc(50vw - 18px));
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
       transition: transform 0.22s ease;
     }
 
+    .fyi-floating-dock:active {
+      cursor: grabbing;
+    }
+
     .fyi-bubble {
+      position: relative;
       background: var(--card-bg);
       border: 1.5px solid var(--accent);
       color: var(--text-main);
       border-radius: 16px;
-      padding: 10px 12px;
-      font-size: 0.76rem;
-      line-height: 1.38;
+      padding: 10px 24px 10px 11px;
+      font-size: 0.74rem;
+      line-height: 1.36;
       font-weight: 600;
       box-shadow: 0 10px 24px rgba(242, 75, 136, 0.22);
       animation: popIn 0.22s ease-out;
-      position: relative;
       transition: background-color 0.4s ease, color 0.4s ease;
     }
 
     .fyi-bubble-badge {
       display: inline-block;
-      font-size: 0.66rem;
+      font-size: 0.65rem;
       font-weight: 700;
       color: var(--accent-dark);
       background: var(--accent-soft);
@@ -1794,10 +1835,12 @@
     id="faturCurhatWidget"
     role="button"
     tabindex="0"
-    aria-label="cayang sini ngobrol kalau lagi ngambek atau g mood"
+    aria-label="Fatur AI Curhat"
   >
-    <div class="fatur-curhat-bubble">
-      cayang sini ngobrol kalau lagi ngambek atau g mood
+    <div class="fatur-curhat-bubble" id="faturCurhatBubble">
+      <button type="button" class="bubble-close-btn" id="closeFaturBubbleBtn" aria-label="Tutup pesan Fatur">×</button>
+      <div>cayang sini ngobrol kalau lagi ngambek atau g mood</div>
+      <div style="margin-top:4px;font-size:0.68rem;opacity:0.9;">Clue: club bola aku apa ya cayang? itu sandi nyaa</div>
     </div>
     <button type="button" class="fatur-curhat-btn" id="faturCurhatBtn" aria-label="Buka Ruang Curhat AI">
       <svg class="fatur-curhat-svg" viewBox="0 0 64 76" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1823,6 +1866,7 @@
   <!-- Floating Mini Lyvia (Jas Putih + Kacamata) -->
   <div class="fyi-floating-dock" id="fyiFloatingDock" aria-live="polite">
     <div class="fyi-bubble" id="fyiBubble">
+      <button type="button" class="bubble-close-btn" id="closeFyiBubbleBtn" aria-label="Tutup pesan Lyvia FYI">×</button>
       <span class="fyi-bubble-badge">👓 Lyvia FYI</span>
       <div id="fyiBubbleText">Halo! Klik aku buat dengerin FYI tentang Fatur &amp; Lyvia ✨</div>
     </div>
@@ -1854,28 +1898,110 @@
   </div>
 
   <script>
-    // --- Navigasi Chibi Fatur ke Ruang Curhat AI ---
+    // --- Helper Drag & Drop untuk Widget Mengambang ---
+    function enableDraggableDock(dockEl, onTapAction) {
+      if (!dockEl) return;
+
+      let isPointerDown = false;
+      let hasDragged = false;
+      let startX = 0;
+      let startY = 0;
+      let originLeft = 0;
+      let originTop = 0;
+
+      dockEl.addEventListener("pointerdown", (e) => {
+        if (e.target && e.target.closest(".bubble-close-btn")) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        isPointerDown = true;
+        hasDragged = false;
+
+        const rect = dockEl.getBoundingClientRect();
+        dockEl.style.left = `${rect.left}px`;
+        dockEl.style.top = `${rect.top}px`;
+        dockEl.style.right = "auto";
+        dockEl.style.bottom = "auto";
+
+        originLeft = rect.left;
+        originTop = rect.top;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        dockEl.classList.add("is-dragging-dock");
+        dockEl.setPointerCapture(e.pointerId);
+      });
+
+      dockEl.addEventListener("pointermove", (e) => {
+        if (!isPointerDown) return;
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        if (!hasDragged && Math.hypot(dx, dy) > 6) {
+          hasDragged = true;
+        }
+
+        if (!hasDragged) return;
+
+        const rect = dockEl.getBoundingClientRect();
+        const maxLeft = Math.max(8, window.innerWidth - rect.width - 8);
+        const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+
+        const nextLeft = Math.min(maxLeft, Math.max(8, originLeft + dx));
+        const nextTop = Math.min(maxTop, Math.max(8, originTop + dy));
+
+        dockEl.style.left = `${nextLeft}px`;
+        dockEl.style.top = `${nextTop}px`;
+      });
+
+      const finishPointer = (e) => {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+        dockEl.classList.remove("is-dragging-dock");
+
+        if (dockEl.hasPointerCapture && dockEl.hasPointerCapture(e.pointerId)) {
+          dockEl.releasePointerCapture(e.pointerId);
+        }
+
+        if (!hasDragged && typeof onTapAction === "function") {
+          onTapAction();
+        }
+      };
+
+      dockEl.addEventListener("pointerup", finishPointer);
+      dockEl.addEventListener("pointercancel", finishPointer);
+    }
+
+    // --- Fatur AI Curhat: Bubble Tutup/Buka, Drag & Navigasi ---
     const faturCurhatWidget = document.getElementById("faturCurhatWidget");
-    const faturCurhatBtn = document.getElementById("faturCurhatBtn");
+    const faturCurhatBubble = document.getElementById("faturCurhatBubble");
+    const closeFaturBubbleBtn = document.getElementById("closeFaturBubbleBtn");
 
     function openCurhatPage() {
       window.location.href = "./curhat.html";
     }
 
+    if (closeFaturBubbleBtn && faturCurhatBubble) {
+      closeFaturBubbleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        faturCurhatBubble.classList.add("is-bubble-hidden");
+      });
+    }
+
+    enableDraggableDock(faturCurhatWidget, () => {
+      if (faturCurhatBubble && faturCurhatBubble.classList.contains("is-bubble-hidden")) {
+        faturCurhatBubble.classList.remove("is-bubble-hidden");
+        return;
+      }
+      openCurhatPage();
+    });
+
     if (faturCurhatWidget) {
-      faturCurhatWidget.addEventListener("click", openCurhatPage);
       faturCurhatWidget.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           openCurhatPage();
         }
-      });
-    }
-
-    if (faturCurhatBtn) {
-      faturCurhatBtn.addEventListener("click", (event) => {
-        event.stopPropagation();
-        openCurhatPage();
       });
     }
 
@@ -2263,6 +2389,7 @@
     const fyiFloatingDock = document.getElementById("fyiFloatingDock");
     const fyiLyviaBtn = document.getElementById("fyiLyviaBtn");
     const fyiBubble = document.getElementById("fyiBubble");
+    const closeFyiBubbleBtn = document.getElementById("closeFyiBubbleBtn");
     const fyiBubbleText = document.getElementById("fyiBubbleText");
 
     const faturLyviaFacts = [
@@ -2292,7 +2419,11 @@
       return faturLyviaFacts[idx];
     }
 
-    fyiLyviaBtn.addEventListener("click", () => {
+    function triggerFyiTap() {
+      if (fyiBubble && fyiBubble.classList.contains("is-bubble-hidden")) {
+        fyiBubble.classList.remove("is-bubble-hidden");
+      }
+
       fyiLyviaBtn.classList.remove("is-bouncing");
       void fyiLyviaBtn.offsetWidth;
       fyiLyviaBtn.classList.add("is-bouncing");
@@ -2301,7 +2432,16 @@
       void fyiBubble.offsetWidth;
       fyiBubble.style.animation = "popIn 0.22s ease-out";
       fyiBubbleText.textContent = pickNextFyi();
-    });
+    }
+
+    if (closeFyiBubbleBtn && fyiBubble) {
+      closeFyiBubbleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fyiBubble.classList.add("is-bubble-hidden");
+      });
+    }
+
+    enableDraggableDock(fyiFloatingDock, triggerFyiTap);
 
     window.addEventListener(
       "scroll",
@@ -2310,7 +2450,7 @@
         const delta = currentY - lastScrollY;
         lastScrollY = currentY;
 
-        if (Math.abs(delta) > 1) {
+        if (Math.abs(delta) > 1 && !fyiFloatingDock.classList.contains("is-dragging-dock")) {
           const tiltDeg = delta > 0 ? -4 : 4;
           fyiFloatingDock.style.transform = `translateY(${delta > 0 ? 3 : -3}px) rotate(${tiltDeg}deg)`;
           clearTimeout(scrollTiltTimer);
