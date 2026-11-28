@@ -1061,11 +1061,44 @@
       min-height: 18px;
     }
 
+    /* --- Sweet Notes Minimalis --- */
+    .notes-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-soft);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .notes-toggle-all-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-soft);
+      color: var(--accent-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .notes-toggle-all-btn:hover {
+      background: var(--hover-soft);
+    }
+
     .notes-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 12px;
     }
 
     .note-card {
@@ -1103,10 +1136,38 @@
       word-break: break-word;
     }
 
+    .note-message.is-clamped {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .note-expand-btn {
+      margin-top: 4px;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      cursor: pointer;
+    }
+
     .note-actions {
       margin-top: 8px;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .note-actions-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .reply-toggle-btn {
@@ -1133,6 +1194,10 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+    }
+
+    .replies-thread.is-collapsed {
+      display: none;
     }
 
     .reply-item {
@@ -1807,6 +1872,11 @@
         <button type="submit" class="submit-btn" id="submitBtn">💬 Kirim Ucapan</button>
         <div class="status-text" id="statusText"></div>
       </form>
+
+      <div class="notes-toolbar" id="notesToolbar" style="display: none;">
+        <span id="notesSummaryText">3 ucapan terbaru</span>
+        <button type="button" class="notes-toggle-all-btn" id="toggleAllNotesBtn">Lihat Semua</button>
+      </div>
 
       <div class="notes-list" id="notesList">
         <div class="empty-notes">Memuat ucapan...</div>
@@ -2948,205 +3018,297 @@
       photoInput.value = "";
     });
 
+    // --- Sweet Notes Minimalis (3 Ucapan Terbaru Default) ---
     const notesList = document.getElementById("notesList");
+    const notesToolbar = document.getElementById("notesToolbar");
+    const notesSummaryText = document.getElementById("notesSummaryText");
+    const toggleAllNotesBtn = document.getElementById("toggleAllNotesBtn");
     const noteForm = document.getElementById("noteForm");
     const authorInput = document.getElementById("authorInput");
     const messageInput = document.getElementById("messageInput");
     const submitBtn = document.getElementById("submitBtn");
     const statusText = document.getElementById("statusText");
+
+    const PREVIEW_LIMIT = 3;
+    let showAllNotes = false;
+    let cachedNotesItems = [];
     const openReplyNoteIds = new Set();
+    const expandedNoteIds = new Set();
+    const expandedRepliesNoteIds = new Set();
+
+    function renderNotesList() {
+      notesList.innerHTML = "";
+
+      if (!cachedNotesItems.length) {
+        notesToolbar.style.display = "none";
+        notesList.innerHTML = `<div class="empty-notes">Belum ada ucapan. Yuk jadi yang pertama mengirim!</div>`;
+        return;
+      }
+
+      notesToolbar.style.display = "flex";
+      const total = cachedNotesItems.length;
+      const visibleItems = showAllNotes
+        ? cachedNotesItems
+        : cachedNotesItems.slice(0, PREVIEW_LIMIT);
+
+      notesSummaryText.textContent = showAllNotes
+        ? `Semua (${total}) ucapan`
+        : `${visibleItems.length} ucapan terbaru dari ${total}`;
+
+      if (total > PREVIEW_LIMIT) {
+        toggleAllNotesBtn.style.display = "inline-block";
+        toggleAllNotesBtn.textContent = showAllNotes ? "Ringkas (3)" : `Lihat Semua (${total})`;
+      } else {
+        toggleAllNotesBtn.style.display = "none";
+      }
+
+      visibleItems.forEach((note) => {
+        const card = document.createElement("div");
+        card.className = "note-card";
+
+        const header = document.createElement("div");
+        header.className = "note-header";
+
+        const author = document.createElement("div");
+        author.className = "note-author";
+        author.textContent = note.author || "Anonim";
+
+        const time = document.createElement("div");
+        time.className = "note-time";
+        time.textContent = formatShortDate(note.createdAt || Date.now());
+
+        const fullMsg = note.message || "";
+        const isLongMsg = fullMsg.length > 140 || fullMsg.split("\n").length > 3;
+        const isMsgExpanded = expandedNoteIds.has(note.id);
+
+        const msg = document.createElement("div");
+        msg.className = "note-message";
+        if (isLongMsg && !isMsgExpanded) {
+          msg.classList.add("is-clamped");
+        }
+        msg.textContent = fullMsg;
+
+        header.appendChild(author);
+        header.appendChild(time);
+        card.appendChild(header);
+        card.appendChild(msg);
+
+        if (isLongMsg) {
+          const expandBtn = document.createElement("button");
+          expandBtn.type = "button";
+          expandBtn.className = "note-expand-btn";
+          expandBtn.textContent = isMsgExpanded ? "Sembunyikan" : "Baca selengkapnya";
+          expandBtn.addEventListener("click", () => {
+            if (expandedNoteIds.has(note.id)) {
+              expandedNoteIds.delete(note.id);
+            } else {
+              expandedNoteIds.add(note.id);
+            }
+            renderNotesList();
+          });
+          card.appendChild(expandBtn);
+        }
+
+        const repliesObj = note.replies && typeof note.replies === "object" ? note.replies : {};
+        const replyItems = Object.values(repliesObj)
+          .filter((r) => r && r.message)
+          .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+        const isRepliesOpen = expandedRepliesNoteIds.has(note.id);
+        let threadEl = null;
+
+        if (replyItems.length > 0) {
+          threadEl = document.createElement("div");
+          threadEl.className = "replies-thread";
+          if (!isRepliesOpen) {
+            threadEl.classList.add("is-collapsed");
+          }
+
+          replyItems.forEach((rep) => {
+            const repEl = document.createElement("div");
+            repEl.className = "reply-item";
+
+            const repMeta = document.createElement("div");
+            repMeta.className = "reply-meta";
+
+            const repAuthor = document.createElement("span");
+            repAuthor.className = "reply-author";
+            repAuthor.textContent = rep.author || "Fatur & Lyvia";
+
+            const repTime = document.createElement("span");
+            repTime.className = "reply-time";
+            repTime.textContent = formatShortDate(rep.createdAt || Date.now());
+
+            const repText = document.createElement("div");
+            repText.className = "reply-text";
+            repText.textContent = rep.message;
+
+            repMeta.appendChild(repAuthor);
+            repMeta.appendChild(repTime);
+            repEl.appendChild(repMeta);
+            repEl.appendChild(repText);
+            threadEl.appendChild(repEl);
+          });
+        }
+
+        const actionsEl = document.createElement("div");
+        actionsEl.className = "note-actions";
+
+        const leftGroup = document.createElement("div");
+        leftGroup.className = "note-actions-left";
+        if (replyItems.length > 0) {
+          const toggleRepliesBtn = document.createElement("button");
+          toggleRepliesBtn.type = "button";
+          toggleRepliesBtn.className = "reply-toggle-btn";
+          toggleRepliesBtn.textContent = isRepliesOpen
+            ? "Tutup balasan"
+            : `💬 ${replyItems.length} balasan`;
+          toggleRepliesBtn.addEventListener("click", () => {
+            if (expandedRepliesNoteIds.has(note.id)) {
+              expandedRepliesNoteIds.delete(note.id);
+            } else {
+              expandedRepliesNoteIds.add(note.id);
+            }
+            renderNotesList();
+          });
+          leftGroup.appendChild(toggleRepliesBtn);
+        }
+
+        const replyToggleBtn = document.createElement("button");
+        replyToggleBtn.type = "button";
+        replyToggleBtn.className = "reply-toggle-btn";
+        replyToggleBtn.textContent = "✏️ Balas";
+
+        const replyForm = document.createElement("form");
+        replyForm.className = "reply-form";
+        if (openReplyNoteIds.has(note.id)) {
+          replyForm.classList.add("is-open");
+        }
+
+        let chosenReplier = "Fatur";
+        const whoRow = document.createElement("div");
+        whoRow.className = "reply-who-row";
+
+        const faturReplyBtn = document.createElement("button");
+        faturReplyBtn.type = "button";
+        faturReplyBtn.className = "reply-who-btn is-active";
+        faturReplyBtn.textContent = "Fatur";
+
+        const lyviaReplyBtn = document.createElement("button");
+        lyviaReplyBtn.type = "button";
+        lyviaReplyBtn.className = "reply-who-btn";
+        lyviaReplyBtn.textContent = "Lyvia";
+
+        function selectReplier(name) {
+          chosenReplier = name;
+          faturReplyBtn.classList.toggle("is-active", name === "Fatur");
+          lyviaReplyBtn.classList.toggle("is-active", name === "Lyvia");
+        }
+
+        faturReplyBtn.addEventListener("click", () => selectReplier("Fatur"));
+        lyviaReplyBtn.addEventListener("click", () => selectReplier("Lyvia"));
+
+        whoRow.appendChild(faturReplyBtn);
+        whoRow.appendChild(lyviaReplyBtn);
+
+        const replyInput = document.createElement("input");
+        replyInput.type = "text";
+        replyInput.className = "reply-input";
+        replyInput.placeholder = "Tulis balasan singkat...";
+        replyInput.maxlength = "250";
+        replyInput.required = true;
+
+        const replySubmitBtn = document.createElement("button");
+        replySubmitBtn.type = "submit";
+        replySubmitBtn.className = "reply-submit-btn";
+        replySubmitBtn.textContent = "Kirim Balasan";
+
+        replyToggleBtn.addEventListener("click", () => {
+          const willOpen = !replyForm.classList.contains("is-open");
+          replyForm.classList.toggle("is-open", willOpen);
+          if (willOpen) {
+            openReplyNoteIds.add(note.id);
+            replyInput.focus();
+          } else {
+            openReplyNoteIds.delete(note.id);
+          }
+        });
+
+        replyForm.addEventListener("submit", async (ev) => {
+          ev.preventDefault();
+          const replyText = replyInput.value.trim();
+          if (!replyText) return;
+
+          replySubmitBtn.disabled = true;
+          replySubmitBtn.textContent = "Mengirim...";
+
+          try {
+            const rRes = await fetch(`${DB_URL}/notes/${encodeURIComponent(note.id)}/replies.json`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                author: chosenReplier,
+                message: replyText,
+                createdAt: Date.now()
+              })
+            });
+
+            const rResult = await rRes.json();
+            if (!rRes.ok || !rResult || !rResult.name) {
+              throw new Error("Gagal mengirim balasan");
+            }
+
+            replyInput.value = "";
+            openReplyNoteIds.delete(note.id);
+            expandedRepliesNoteIds.add(note.id);
+            spawnFloatingHearts();
+            await loadNotes();
+          } catch (err) {
+            replySubmitBtn.disabled = false;
+            replySubmitBtn.textContent = "Kirim Balasan";
+          }
+        });
+
+        replyForm.appendChild(whoRow);
+        replyForm.appendChild(replyInput);
+        replyForm.appendChild(replySubmitBtn);
+
+        actionsEl.appendChild(leftGroup);
+        actionsEl.appendChild(replyToggleBtn);
+        card.appendChild(actionsEl);
+        if (threadEl) {
+          card.appendChild(threadEl);
+        }
+        card.appendChild(replyForm);
+
+        notesList.appendChild(card);
+      });
+    }
+
+    toggleAllNotesBtn.addEventListener("click", () => {
+      showAllNotes = !showAllNotes;
+      renderNotesList();
+    });
 
     async function loadNotes() {
       try {
         const res = await fetch(`${DB_URL}/notes.json`);
         const data = await res.json();
 
-        notesList.innerHTML = "";
         if (!data || typeof data !== "object") {
-          notesList.innerHTML = `<div class="empty-notes">Belum ada ucapan. Yuk jadi yang pertama mengirim!</div>`;
+          cachedNotesItems = [];
+          renderNotesList();
           return;
         }
 
-        const items = Object.entries(data)
+        cachedNotesItems = Object.entries(data)
           .map(([id, val]) => ({ id, ...val }))
           .filter((item) => item && (item.author || item.message))
           .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-        if (items.length === 0) {
-          notesList.innerHTML = `<div class="empty-notes">Belum ada ucapan. Yuk jadi yang pertama mengirim!</div>`;
-          return;
-        }
-
-        items.forEach((note) => {
-          const card = document.createElement("div");
-          card.className = "note-card";
-
-          const header = document.createElement("div");
-          header.className = "note-header";
-
-          const author = document.createElement("div");
-          author.className = "note-author";
-          author.textContent = note.author || "Anonim";
-
-          const time = document.createElement("div");
-          time.className = "note-time";
-          time.textContent = formatShortDate(note.createdAt || Date.now());
-
-          const msg = document.createElement("div");
-          msg.className = "note-message";
-          msg.textContent = note.message || "";
-
-          header.appendChild(author);
-          header.appendChild(time);
-          card.appendChild(header);
-          card.appendChild(msg);
-
-          const repliesObj = note.replies && typeof note.replies === "object" ? note.replies : {};
-          const replyItems = Object.values(repliesObj)
-            .filter((r) => r && r.message)
-            .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-
-          if (replyItems.length > 0) {
-            const threadEl = document.createElement("div");
-            threadEl.className = "replies-thread";
-
-            replyItems.forEach((rep) => {
-              const repEl = document.createElement("div");
-              repEl.className = "reply-item";
-
-              const repMeta = document.createElement("div");
-              repMeta.className = "reply-meta";
-
-              const repAuthor = document.createElement("span");
-              repAuthor.className = "reply-author";
-              repAuthor.textContent = rep.author || "Fatur & Lyvia";
-
-              const repTime = document.createElement("span");
-              repTime.className = "reply-time";
-              repTime.textContent = formatShortDate(rep.createdAt || Date.now());
-
-              const repText = document.createElement("div");
-              repText.className = "reply-text";
-              repText.textContent = rep.message;
-
-              repMeta.appendChild(repAuthor);
-              repMeta.appendChild(repTime);
-              repEl.appendChild(repMeta);
-              repEl.appendChild(repText);
-              threadEl.appendChild(repEl);
-            });
-
-            card.appendChild(threadEl);
-          }
-
-          const actionsEl = document.createElement("div");
-          actionsEl.className = "note-actions";
-
-          const replyToggleBtn = document.createElement("button");
-          replyToggleBtn.type = "button";
-          replyToggleBtn.className = "reply-toggle-btn";
-          replyToggleBtn.textContent = "💬 Balas (Fatur & Lyvia)";
-
-          const replyForm = document.createElement("form");
-          replyForm.className = "reply-form";
-          if (openReplyNoteIds.has(note.id)) {
-            replyForm.classList.add("is-open");
-          }
-
-          let chosenReplier = "Fatur";
-          const whoRow = document.createElement("div");
-          whoRow.className = "reply-who-row";
-
-          const faturReplyBtn = document.createElement("button");
-          faturReplyBtn.type = "button";
-          faturReplyBtn.className = "reply-who-btn is-active";
-          faturReplyBtn.textContent = "Fatur";
-
-          const lyviaReplyBtn = document.createElement("button");
-          lyviaReplyBtn.type = "button";
-          lyviaReplyBtn.className = "reply-who-btn";
-          lyviaReplyBtn.textContent = "Lyvia";
-
-          function selectReplier(name) {
-            chosenReplier = name;
-            faturReplyBtn.classList.toggle("is-active", name === "Fatur");
-            lyviaReplyBtn.classList.toggle("is-active", name === "Lyvia");
-          }
-
-          faturReplyBtn.addEventListener("click", () => selectReplier("Fatur"));
-          lyviaReplyBtn.addEventListener("click", () => selectReplier("Lyvia"));
-
-          whoRow.appendChild(faturReplyBtn);
-          whoRow.appendChild(lyviaReplyBtn);
-
-          const replyInput = document.createElement("input");
-          replyInput.type = "text";
-          replyInput.className = "reply-input";
-          replyInput.placeholder = "Tulis balasan singkat...";
-          replyInput.maxlength = "250";
-          replyInput.required = true;
-
-          const replySubmitBtn = document.createElement("button");
-          replySubmitBtn.type = "submit";
-          replySubmitBtn.className = "reply-submit-btn";
-          replySubmitBtn.textContent = "Kirim Balasan";
-
-          replyToggleBtn.addEventListener("click", () => {
-            const willOpen = !replyForm.classList.contains("is-open");
-            replyForm.classList.toggle("is-open", willOpen);
-            if (willOpen) {
-              openReplyNoteIds.add(note.id);
-              replyInput.focus();
-            } else {
-              openReplyNoteIds.delete(note.id);
-            }
-          });
-
-          replyForm.addEventListener("submit", async (ev) => {
-            ev.preventDefault();
-            const replyText = replyInput.value.trim();
-            if (!replyText) return;
-
-            replySubmitBtn.disabled = true;
-            replySubmitBtn.textContent = "Mengirim...";
-
-            try {
-              const rRes = await fetch(`${DB_URL}/notes/${encodeURIComponent(note.id)}/replies.json`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  author: chosenReplier,
-                  message: replyText,
-                  createdAt: Date.now()
-                })
-              });
-
-              const rResult = await rRes.json();
-              if (!rRes.ok || !rResult || !rResult.name) {
-                throw new Error("Gagal mengirim balasan");
-              }
-
-              replyInput.value = "";
-              openReplyNoteIds.delete(note.id);
-              spawnFloatingHearts();
-              await loadNotes();
-            } catch (err) {
-              replySubmitBtn.disabled = false;
-              replySubmitBtn.textContent = "Kirim Balasan";
-            }
-          });
-
-          replyForm.appendChild(whoRow);
-          replyForm.appendChild(replyInput);
-          replyForm.appendChild(replySubmitBtn);
-
-          actionsEl.appendChild(replyToggleBtn);
-          card.appendChild(actionsEl);
-          card.appendChild(replyForm);
-
-          notesList.appendChild(card);
-        });
+        renderNotesList();
       } catch (err) {
+        notesToolbar.style.display = "none";
         notesList.innerHTML = `<div class="empty-notes">Gagal memuat ucapan. Coba muat ulang halaman.</div>`;
       }
     }
