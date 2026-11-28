@@ -21,7 +21,7 @@ function buildSystemInstruction() {
   return [
     "Kamu adalah teman curhat AI yang hangat, empatik, penuh perhatian, dan suportif untuk Lyvia.",
     "Jawab dalam bahasa Indonesia yang natural, lembut, dan tidak menggurui.",
-    "Dengarkan perasaannya dulu, validasi emosinya dengan tulus, lalu beri dukungan atau saran ringan hanya jika terasa relevan.",
+    "Dengarkan perasaannya dulu, validasi emosinya dengan tulus, lalu beri dukungan atau saran ringan secara ringkas.",
     "Jangan menyebut diri kamu model bahasa atau AI teknis kecuali ditanya langsung."
   ].join(" ");
 }
@@ -30,7 +30,7 @@ function normalizeHistory(rawHistory) {
   if (!Array.isArray(rawHistory)) return [];
 
   return rawHistory
-    .slice(-12)
+    .slice(-8)
     .filter(
       (item) =>
         item &&
@@ -50,28 +50,6 @@ function extractReplyText(geminiData) {
     .map((part) => (typeof part.text === "string" ? part.text : ""))
     .join("")
     .trim();
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function callGeminiOnce(apiKey, payload) {
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    MODEL_NAME
-  )}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-  const res = await fetch(geminiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(12000)
-  });
-
-  const data = await res.json().catch(() => ({}));
-  return { res, data };
 }
 
 export default {
@@ -154,63 +132,61 @@ export default {
       }
     ];
 
-    const payload = {
-      systemInstruction: {
-        parts: [{ text: buildSystemInstruction() }]
-      },
-      contents,
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 600
-      }
-    };
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      MODEL_NAME
+    )}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-    const maxAttempts = 2;
-    let lastErrorMessage = "Gagal memanggil Gemini API.";
-    let lastStatus = 502;
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        const { res, data } = await callGeminiOnce(apiKey, payload);
-
-        if (res.ok) {
-          const replyText = extractReplyText(data);
-          if (replyText) {
-            return jsonResponse({ reply: replyText });
+    try {
+      const geminiRes = await fetch(geminiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: buildSystemInstruction() }]
+          },
+          contents,
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 350
           }
-          lastErrorMessage = "Balasan kosong diterima dari Gemini.";
-          lastStatus = 502;
-        } else {
-          const apiErrorMessage =
-            data?.error?.message || `Gagal memanggil Gemini API (HTTP ${res.status}).`;
-          lastErrorMessage = apiErrorMessage;
-          lastStatus = res.status;
+        }),
+        signal: AbortSignal.timeout(7000)
+      });
 
-          const isTempSpike =
-            res.status === 429 ||
-            res.status === 503 ||
-            res.status === 504 ||
-            /high demand|unavailable|overloaded/i.test(apiErrorMessage);
+      const geminiData = await geminiRes.json().catch(() => ({}));
 
-          if (!isTempSpike || attempt === maxAttempts) {
-            return jsonResponse({ error: apiErrorMessage }, res.status);
-          }
-        }
-      } catch (err) {
-        lastErrorMessage =
-          err?.name === "TimeoutError"
-            ? "Waktu tunggu respons Gemini habis."
-            : "Gagal terhubung ke Gemini API: " + (err?.message || String(err));
-        lastStatus = 504;
-
-        if (attempt === maxAttempts) {
-          return jsonResponse({ error: lastErrorMessage }, lastStatus);
-        }
+      if (!geminiRes.ok) {
+        const apiErrorMessage =
+          geminiData?.error?.message || `Gagal memanggil Gemini API (HTTP ${geminiRes.status}).`;
+        return jsonResponse({ error: apiErrorMessage }, geminiRes.status);
       }
 
-      await sleep(800);
+      const replyText = extractReplyText(dataOrFallback(geminiData));
+      if (!replyText) {
+        return jsonResponse(
+          { error: "Balasan kosong diterima dari Gemini." },
+          502
+        );
+      }
+
+      return jsonResponse({ reply: replyText });
+    } catch (err) {
+      if (err?.name === "TimeoutError") {
+        return jsonResponse(
+          { error: "Server AI sedang lambat merespons. Coba kirim lagi sebentar ya." },
+          504
+        );
+      }
+      return jsonResponse(
+        { error: "Gagal terhubung ke Gemini API: " + (err?.message || String(err)) },
+        502
+      );
     }
-
-    return jsonResponse({ error: lastErrorMessage }, lastStatus);
   }
 };
+
+function dataOrFallback(geminiData) {
+  return geminiData && typeof geminiData === "object" ? geminiData : {};
+}
