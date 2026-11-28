@@ -5,7 +5,14 @@ const CORS_HEADERS = {
   "Access-Control-Max-Age": "86400"
 };
 
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const PREFERRED_MODELS = [
+  "llama-3.3-70b-versatile",
+  "llama-3.1-8b-instant",
+  "gemma2-9b-it",
+  "qwen/qwen3-32b"
+];
+
+let cachedModelId = null;
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -42,6 +49,44 @@ function normalizeHistory(rawHistory) {
       role: item.role === "model" ? "assistant" : "user",
       content: item.text.trim()
     }));
+}
+
+async function resolveGroqModel(groqKey) {
+  if (cachedModelId) return cachedModelId;
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: {
+        Authorization: `Bearer ${groqKey}`
+      },
+      signal: AbortSignal.timeout(4000)
+    });
+
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      const models = Array.isArray(data?.data) ? data.data : [];
+      const activeIds = new Set(models.map((m) => m.id).filter(Boolean));
+
+      for (const preferred of PREFERRED_MODELS) {
+        if (activeIds.has(preferred)) {
+          cachedModelId = preferred;
+          return cachedModelId;
+        }
+      }
+
+      const firstChatModel = models.find(
+        (m) => m.id && !/whisper|tts|guard|prompt|embed/i.test(m.id)
+      );
+      if (firstChatModel?.id) {
+        cachedModelId = firstChatModel.id;
+        return cachedModelId;
+      }
+    }
+  } catch (_) {
+    // Fallback ke model default
+  }
+
+  return "llama-3.1-8b-instant";
 }
 
 export default {
@@ -87,6 +132,8 @@ export default {
       return jsonResponse({ error: "Pesan curhat tidak boleh kosong." }, 400);
     }
 
+    const activeModel = await resolveGroqModel(groqKey);
+
     const messages = [
       { role: "system", content: buildSystemInstruction() },
       ...history,
@@ -101,7 +148,7 @@ export default {
           Authorization: `Bearer ${groqKey}`
         },
         body: JSON.stringify({
-          model: GROQ_MODEL,
+          model: activeModel,
           messages,
           temperature: 0.8,
           max_tokens: 450
